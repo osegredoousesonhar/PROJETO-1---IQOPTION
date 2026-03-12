@@ -91,8 +91,16 @@ class MarketChart {
             this.lastPrice = close;
         }, 1000);
     }
+
+    // Método para trocar de ativo e resetar o gráfico
+    changeAsset(newAsset) {
+        if (!this.series) return;
+        console.log("Mudando gráfico para: " + newAsset);
+        this.lastPrice = 1.0000 + (Math.random() * 0.5); // Semente de preço aleatória para o novo ativo
+        this.generateData(); // Gera novo histórico
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new MarketChart('main-chart');
+    window.marketChart = new MarketChart('main-chart');
 });

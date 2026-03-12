@@ -266,12 +266,9 @@ class SignalEngine {
         this.renderPrimary();
         this.playSound('new');
         
-        // Resetar botão para nova confirmação
-        const btn = document.getElementById('btn-confirm-trade');
-        if (btn) {
-            btn.innerText = "Confirmar Entrada";
-            btn.style.background = "var(--accent)";
-            btn.disabled = false;
+        // Sincroniza o gráfico se ele existir
+        if (window.marketChart) {
+            window.marketChart.changeAsset(selected.pair);
         }
     }
 
@@ -308,6 +305,14 @@ class SignalEngine {
         
         this.updateBalanceUI();
         this.saveData();
+
+        // Feedback visual de clique
+        const btn = document.getElementById('btn-confirm-trade');
+        if (btn) {
+            btn.innerText = "ORDEM REGISTRADA!";
+            btn.style.background = "var(--green)";
+            btn.disabled = true;
+        }
     }
 
     updateBalanceUI() {
@@ -466,8 +471,8 @@ class SignalEngine {
             return;
         }
 
-        // Se houver sinal, garante que a estrutura interna está correta (caso tenha sido alterada pelo aviso)
-        if (container && container.querySelector('div[style*="border: 2px solid var(--red)"]')) {
+        // Se houver sinal, reconstrói o card principal para garantir total funcionalidade
+        if (container) {
             container.innerHTML = `
                 <span id="label-pair" class="hero-pair">${s.pair}</span>
                 <span id="info-timeframe" class="hero-timeframe">IA SCALPER ${s.timeframe}</span>
@@ -478,66 +483,42 @@ class SignalEngine {
                 </div>
 
                 <div class="timer-display">
-                    <p id="entry-time-label" style="font-size: 10px; color: var(--accent); margin-bottom: 5px; font-weight: 800;">
-                        PRÓXIMA ENTRADA: ${s.entry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                    <div id="main-timer" class="main-clock">00:00</div>
+                    <span id="main-timer" class="live-timer">00:00</span>
+                    <p id="entry-time-label" class="entry-badge">Aguardando IA...</p>
                 </div>
 
-                <div class="input-group">
-                    <label>VALOR DA OPERAÇÃO</label>
-                    <input type="number" id="trade-amount" value="0.00" step="1">
+                <div class="input-container">
+                    <input type="number" id="trade-amount" value="0.00" class="trade-input">
+                    <button id="btn-confirm-trade" class="confirm-btn">Confirmar Entrada</button>
                 </div>
 
-                <button id="btn-confirm-trade" class="confirm-btn">Confirmar Entrada</button>
-                
-                <div class="signal-intel">
-                    <div class="intel-item">
-                        <span class="intel-label">CONFIANÇA</span>
-                        <span id="label-prob" class="intel-val" style="color: var(--green);">--%</span>
+                <div class="confidence">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 8px;">
+                        <span>CONFIANÇA IA</span>
+                        <span id="label-prob">${s.prob}%</span>
                     </div>
-                    <div class="intel-item" style="text-align: right;">
-                        <span class="intel-label">PAYOUT</span>
-                        <span class="intel-val">85%</span>
+                    <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                        <div id="prob-fill" style="height: 100%; width: ${s.prob}%; background: var(--accent); box-shadow: 0 0 15px var(--accent-glow);"></div>
                     </div>
                 </div>
             `;
         }
 
-        // Header Update
+        // Atualiza cabeçalho do Dashboard
         const assetTitle = document.getElementById('current-asset');
         if (assetTitle) assetTitle.innerText = s.pair;
 
-        // Card Main Info
-        const labelPair = document.getElementById('label-pair');
-        const labelEntry = document.getElementById('entry-time-label');
-        const labelTf = document.getElementById('info-timeframe');
-        
-        if (labelPair) labelPair.innerText = s.pair;
-        if (labelTf) labelTf.innerText = `IA SCALPER ${s.timeframe}`;
-        
-        const entryClock = s.entry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        if (labelEntry) labelEntry.innerText = `PRÓXIMA ENTRADA: ${entryClock}`;
-
-        // Sugestão de Entrada (Gestão de 2%)
+        // Sugestão de Entrada automática (2% do Saldo)
         const suggestedAmount = Math.max(5, (this.balance * 0.02)).toFixed(0);
         const amountInput = document.getElementById('trade-amount');
         if (amountInput) {
             amountInput.value = suggestedAmount;
         }
 
-        // Direction & Action
-        const btn = document.getElementById('direction-action');
-        const icon = document.getElementById('direction-icon');
-        const text = document.getElementById('direction-text');
-
-        if (btn) btn.className = `main-action-box ${s.type === 'COMPRA' ? 'call' : 'put'}`;
-        if (icon) icon.className = `fas fa-arrow-${s.type === 'COMPRA' ? 'up' : 'down'} action-icon`;
-        if (text) text.innerText = s.type;
-
-        // Confidence
-        const probLabel = document.getElementById('label-prob');
-        if (probLabel) probLabel.innerText = s.prob + "%";
+        const entryLabel = document.getElementById('entry-time-label');
+        if (entryLabel) {
+            entryLabel.innerText = `PRÓXIMA ENTRADA: ${s.entry.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        }
     }
 
     tick() {
