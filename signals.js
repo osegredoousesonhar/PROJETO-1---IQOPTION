@@ -137,18 +137,22 @@ class SignalEngine {
         
         // DELEGAÇÃO DE EVENTOS MASTER
         document.body.addEventListener('click', (e) => {
+            console.log("Clique detectado em:", e.target);
             // Botão Confirmar Entrada
             if (e.target.id === 'btn-confirm-trade' || e.target.closest('#btn-confirm-trade')) {
                 if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 this.confirmTrade();
+                return;
             }
             
-            // Seleção no Radar (Botão específico para ser mais preciso)
-            const selBtn = e.target.closest('.radar-select-btn');
-            if (selBtn) {
-                const card = selBtn.closest('.radar-hero-card');
-                const idx = Array.from(document.getElementById('radar-list').children).indexOf(card);
-                if (idx !== -1) this.selectRadarSignal(idx);
+            // Seleção no Radar (Botão ou Card)
+            const radarCard = e.target.closest('.radar-hero-card');
+            if (radarCard) {
+                const idx = Array.from(document.getElementById('radar-list').children).indexOf(radarCard);
+                if (idx !== -1) {
+                    console.log("Sinal do radar selecionado:", idx);
+                    this.selectRadarSignal(idx);
+                }
             }
         });
         
@@ -219,7 +223,7 @@ class SignalEngine {
             const entryStr = entryTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
             return `
-            <div class="radar-hero-card" onclick="window.engine.selectRadarSignal(${idx})">
+            <div class="radar-hero-card">
                 <div class="hero-signal-header">
                     <span class="hero-pair" style="font-size: 20px; margin-bottom: 2px;">${s.pair}</span>
                     <span class="hero-timeframe" style="font-size: 9px;">IA SCALPER ${s.timeframe}</span>
@@ -233,7 +237,7 @@ class SignalEngine {
                 <p class="entry-badge" style="font-size: 11px; padding: 5px 10px; margin-bottom: 12px; display: inline-block;">ENTRADA: ${entryStr}</p>
 
                 <div class="input-container" style="grid-template-columns: 1fr;">
-                    <button class="confirm-btn" style="padding: 15px; font-size: 14px; pointer-events: none;">SELECIONAR SINAL</button>
+                    <button class="confirm-btn radar-select-btn" style="padding: 15px; font-size: 14px; pointer-events: none;">SELECIONAR SINAL</button>
                 </div>
 
                 <div class="confidence" style="text-align: left;">
@@ -553,14 +557,19 @@ class SignalEngine {
 
         if (!this.activeSignal) return;
 
-        const diff = Math.floor((this.activeSignal.entry.getTime() - now) / 1000);
+        // Tenta converter para Date caso seja carregado como string (segurança)
+        const entryDate = this.activeSignal.entry instanceof Date ? this.activeSignal.entry : new Date(this.activeSignal.entry);
+        const diff = Math.floor((entryDate.getTime() - now) / 1000);
         const timer = document.getElementById('main-timer');
 
         if (diff > 0) {
             const m = Math.floor(diff / 60);
             const s = diff % 60;
             if (timer) {
-                timer.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                const timeText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (timer.innerText !== timeText) {
+                    timer.innerText = timeText;
+                }
                 
                 if (diff <= 30) {
                     timer.style.color = '#ff5252';
@@ -569,6 +578,7 @@ class SignalEngine {
                 }
             }
         } else {
+            console.log("Intervalo encerrado. Apurando sinal:", this.activeSignal.pair);
             // FIM DO TEMPO: Move para apuração manual
             this.moveToPending(this.activeSignal);
             this.generateSignal();

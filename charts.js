@@ -13,39 +13,52 @@ class MarketChart {
 
     async init() {
         if (!this.container) return;
+        
+        // Verifica se a biblioteca carregou
+        if (typeof LightweightCharts === 'undefined') {
+            console.warn("LightweightCharts não encontrado. Aguardando...");
+            setTimeout(() => this.init(), 200);
+            return;
+        }
 
-        // Aguarda o container ter dimensões reais (essencial para renderização correta)
         let w = this.container.clientWidth;
         let h = this.container.clientHeight;
         
         if (w === 0 || h === 0) {
-            console.log("Container sem tamanho. Aguardando 100ms...");
             setTimeout(() => this.init(), 100);
             return;
         }
 
+        console.log(`Inicializando gráfico: ${w}x${h}`);
+
         const chartOptions = {
             width: w,
             height: h,
-            layout: { 
-                background: { color: 'transparent' }, 
+            layout: {
+                background: { type: 'solid', color: '#0e111a' },
                 textColor: '#94a3b8',
-                fontSize: 10
             },
             grid: {
-                vertLines: { color: 'rgba(255, 255, 255, 0.02)' },
-                horzLines: { color: 'rgba(255, 255, 255, 0.02)' },
+                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
             },
-            timeScale: { borderColor: 'rgba(255, 255, 255, 0.1)', timeVisible: true },
-            rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.1)' },
-            handleScroll: true,
-            handleScale: true,
+            crosshair: {
+                mode: 0,
+            },
+            timeScale: {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                timeVisible: true,
+                secondsVisible: false,
+            },
         };
 
         this.chart = LightweightCharts.createChart(this.container, chartOptions);
         this.series = this.chart.addCandlestickSeries({
-            upColor: '#00e676', downColor: '#ff5252', 
-            borderVisible: false, wickUpColor: '#00e676', wickDownColor: '#ff5252'
+            upColor: '#00e676',
+            downColor: '#ff5252',
+            borderVisible: false,
+            wickUpColor: '#00e676',
+            wickDownColor: '#ff5252',
         });
 
         this.generateData();
