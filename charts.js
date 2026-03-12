@@ -14,9 +14,15 @@ class MarketChart {
     async init() {
         if (!this.container) return;
 
-        // Se o container ainda não tiver dimensões na DOM, usa valores padrão para não travar
-        const w = this.container.clientWidth || document.querySelector('.main-stage').clientWidth || 800;
-        const h = this.container.clientHeight || 250;
+        // Aguarda o container ter dimensões reais (essencial para renderização correta)
+        let w = this.container.clientWidth;
+        let h = this.container.clientHeight;
+        
+        if (w === 0 || h === 0) {
+            console.log("Container sem tamanho. Aguardando 100ms...");
+            setTimeout(() => this.init(), 100);
+            return;
+        }
 
         const chartOptions = {
             width: w,

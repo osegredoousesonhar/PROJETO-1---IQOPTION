@@ -135,7 +135,7 @@ class SignalEngine {
         this.updateNews(); // Gera notícias iniciais
         setInterval(() => this.updateNews(), 300000); // Atualiza notícias a cada 5 min
         
-        // DELEGAÇÃO DE EVENTOS MASTER: Resolve o problema de perda de listeners em renderizações
+        // DELEGAÇÃO DE EVENTOS MASTER
         document.body.addEventListener('click', (e) => {
             // Botão Confirmar Entrada
             if (e.target.id === 'btn-confirm-trade' || e.target.closest('#btn-confirm-trade')) {
@@ -143,10 +143,11 @@ class SignalEngine {
                 this.confirmTrade();
             }
             
-            // Seleção no Radar
-            const radarCard = e.target.closest('.radar-hero-card');
-            if (radarCard) {
-                const idx = Array.from(document.getElementById('radar-list').children).indexOf(radarCard);
+            // Seleção no Radar (Botão específico para ser mais preciso)
+            const selBtn = e.target.closest('.radar-select-btn');
+            if (selBtn) {
+                const card = selBtn.closest('.radar-hero-card');
+                const idx = Array.from(document.getElementById('radar-list').children).indexOf(card);
                 if (idx !== -1) this.selectRadarSignal(idx);
             }
         });
@@ -558,12 +559,14 @@ class SignalEngine {
         if (diff > 0) {
             const m = Math.floor(diff / 60);
             const s = diff % 60;
-            if (timer) timer.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            
-            if (diff <= 30 && timer) {
-                timer.style.color = '#ff5252';
-            } else if (timer) {
-                timer.style.color = 'white';
+            if (timer) {
+                timer.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                
+                if (diff <= 30) {
+                    timer.style.color = '#ff5252';
+                } else {
+                    timer.style.color = 'white';
+                }
             }
         } else {
             // FIM DO TEMPO: Move para apuração manual
