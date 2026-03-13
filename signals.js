@@ -241,7 +241,7 @@ class SignalEngine {
         const basePairs = ['EUR/USD', 'GBP/JPY', 'AUD/CAD', 'USD/JPY', 'EUR/GBP'];
         const isOTC = Math.random() > 0.4;
         const pair = basePairs[Math.floor(Math.random() * basePairs.length)] + (isOTC ? ' (OTC)' : '');
-        const entryTime = this.calculateEntryTime('M5', 5);
+        const entryTime = this.calculateEntryTime('M1', 2); // Mais rápido para teste
         const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
         
         this.activeSignal = {
