@@ -107,10 +107,9 @@ export function TradeProvider({ children }: { children: ReactNode }) {
           )
         );
 
-        return unique
           .filter(sig => sig.entryTime > now - 120000)
           .sort((a, b) => b.probability - a.probability)
-          .slice(0, 15);
+          .slice(0, 3);
       });
 
       if (newSignals.some(s => s.probability >= 90)) {
