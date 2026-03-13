@@ -242,7 +242,14 @@ class SignalEngine {
         const isOTC = Math.random() > 0.4;
         const pair = basePairs[Math.floor(Math.random() * basePairs.length)] + (isOTC ? ' (OTC)' : '');
         const entryTime = this.calculateEntryTime('M5', 5);
+        const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
         
+        this.activeSignal = {
+            id: Date.now(),
+            pair: pair,
+            type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
+            timeframe: timeframe,
+            prob: Math.floor(Math.random() * 12 + 86),
             entry: entryTime,
             duration: timeframe === 'M5' ? 300000 : 60000 
         };
