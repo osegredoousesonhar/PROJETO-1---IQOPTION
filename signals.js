@@ -130,31 +130,43 @@ class SignalEngine {
         this.updateBalanceUI();
         this.renderHistory();
         this.renderPending();
-        setInterval(() => this.tick(), 1000);
-        setInterval(() => this.generateRadar(), 30000); // Atualiza radar a cada 30s
-        this.updateNews(); // Gera notícias iniciais
-        setInterval(() => this.updateNews(), 300000); // Atualiza notícias a cada 5 min
+        // 1. Relógio Interno do Motor (Tick Secundário para redundância)
+        if (this.tickInterval) clearInterval(this.tickInterval);
+        this.tickInterval = setInterval(() => {
+            try { this.tick(); } catch(e) { console.error("Erro no Tick:", e); }
+        }, 1000);
+
+        // 2. Radar de Sinais (Atualização a cada 30s)
+        if (this.radarInterval) clearInterval(this.radarInterval);
+        this.radarInterval = setInterval(() => this.generateRadar(), 30000);
+
+        // 3. Notícias (Atualização a cada 5 min)
+        if (this.newsInterval) clearInterval(this.newsInterval);
+        this.newsInterval = setInterval(() => this.updateNews(), 300000);
         
-        // DELEGAÇÃO DE EVENTOS MASTER
-        document.body.addEventListener('click', (e) => {
-            console.log("Clique detectado em:", e.target);
+        // DELEGAÇÃO DE EVENTOS MASTER (Garante que cliques funcionem sempre)
+        const bodyHandler = (e) => {
             // Botão Confirmar Entrada
-            if (e.target.id === 'btn-confirm-trade' || e.target.closest('#btn-confirm-trade')) {
+            const tradeBtn = e.target.closest('#btn-confirm-trade');
+            if (tradeBtn) {
                 if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 this.confirmTrade();
                 return;
             }
             
-            // Seleção no Radar (Botão ou Card)
+            // Seleção no Radar (Botão ou Card Inteiro)
             const radarCard = e.target.closest('.radar-hero-card');
             if (radarCard) {
                 const idx = Array.from(document.getElementById('radar-list').children).indexOf(radarCard);
                 if (idx !== -1) {
-                    console.log("Sinal do radar selecionado:", idx);
                     this.selectRadarSignal(idx);
                 }
             }
-        });
+        };
+        
+        document.body.removeEventListener('click', this._lastHandler);
+        this._lastHandler = bodyHandler;
+        document.body.addEventListener('click', bodyHandler);
         
         window.engine = this;
         
@@ -223,24 +235,24 @@ class SignalEngine {
             const entryStr = entryTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
             return `
-            <div class="radar-hero-card">
+            <div class="radar-hero-card" style="cursor: pointer;">
                 <div class="hero-signal-header">
                     <span class="hero-pair" style="font-size: 20px; margin-bottom: 2px;">${s.pair}</span>
                     <span class="hero-timeframe" style="font-size: 9px;">IA SCALPER ${s.timeframe}</span>
                 </div>
 
-                <div class="main-action-box ${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 10px 0; padding: 12px; border-width: 2px;">
+                <div class="main-action-box ${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 10px 0; padding: 12px; border-width: 2px; pointer-events: none;">
                     <i class="fas fa-arrow-${s.type === 'COMPRA' ? 'up' : 'down'}" style="font-size: 20px;"></i>
                     <span class="action-label" style="font-size: 14px; letter-spacing: 1px;">${s.type}</span>
                 </div>
 
-                <p class="entry-badge" style="font-size: 11px; padding: 5px 10px; margin-bottom: 12px; display: inline-block;">ENTRADA: ${entryStr}</p>
+                <p class="entry-badge" style="font-size: 11px; padding: 5px 10px; margin-bottom: 12px; display: inline-block; pointer-events: none;">ENTRADA: ${entryStr}</p>
 
-                <div class="input-container" style="grid-template-columns: 1fr;">
-                    <button class="confirm-btn radar-select-btn" style="padding: 15px; font-size: 14px; pointer-events: none;">SELECIONAR SINAL</button>
+                <div class="input-container" style="grid-template-columns: 1fr; pointer-events: none;">
+                    <button class="confirm-btn radar-select-btn" style="padding: 15px; font-size: 14px;">SELECIONAR SINAL</button>
                 </div>
 
-                <div class="confidence" style="text-align: left;">
+                <div class="confidence" style="text-align: left; pointer-events: none;">
                     <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 8px;">
                         <span>CONFIANÇA IA</span>
                         <span>${s.prob}%</span>

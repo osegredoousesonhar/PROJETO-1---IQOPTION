@@ -64,6 +64,16 @@ class MarketChart {
         this.generateData();
         this.startStream();
 
+        // Força um resize inicial após curto delay (essencial para alguns navegadores)
+        setTimeout(() => {
+            if (this.chart && this.container) {
+                this.chart.applyOptions({
+                    width: this.container.clientWidth,
+                    height: this.container.clientHeight
+                });
+            }
+        }, 500);
+
         // Monitor de Redimensionamento Robusto
         const ro = new ResizeObserver(() => {
             if (this.chart && this.container) {
