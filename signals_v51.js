@@ -627,9 +627,32 @@ class SignalEngine {
     updateNews() {
         const list = document.getElementById('news-list');
         if (!list) return;
-        const pairs = ['USD/FED', 'EUR/BCE', 'GBP/BCE', 'JPY/BoJ'];
-        const p = pairs[Math.floor(Math.random() * pairs.length)];
-        list.innerHTML = `<div class="news-item"><div class="news-impact high"></div><div class="news-info"><p class="news-pair">${p}</p><p class="news-text">Decisão Taxa de Juros</p></div><span class="news-time">14:00</span></div>`;
+        
+        const highImpactEvents = [
+            { pair: 'USD', title: 'Non-Farm Payrolls (NFP)', time: '09:30', impact: 'high' },
+            { pair: 'EUR', title: 'Decisão Taxa de Juros BCE', time: '11:15', impact: 'high' },
+            { pair: 'GBP', title: 'Relatório Inflação (CPI)', time: '08:00', impact: 'high' },
+            { pair: 'USD', title: 'FOMC Statement', time: '15:00', impact: 'high' },
+            { pair: 'JPY', title: 'BoJ Monetary Policy', time: '02:00', impact: 'high' },
+            { pair: 'AUD', title: 'RBA Interest Rate', time: '03:30', impact: 'high' }
+        ];
+
+        // Seleciona 3 eventos aleatórios para o dia
+        const shuffled = highImpactEvents.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+
+        list.innerHTML = selected.map(news => `
+            <div class="news-item">
+                <div class="news-impact high">
+                    <span class="bull-icon"><i class="fas fa-bullhorn"></i> 3 Touros</span>
+                </div>
+                <div class="news-info">
+                    <p class="news-pair">${news.pair}</p>
+                    <p class="news-text">${news.title}</p>
+                </div>
+                <span class="news-time">${news.time}</span>
+            </div>
+        `).join('');
     }
 }
 
