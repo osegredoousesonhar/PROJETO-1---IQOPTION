@@ -411,8 +411,6 @@ class SignalEngine {
         this.renderPrimary();
         this.playSound('new');
     }
-   this.playSound('new');
-    }
 
     confirmTrade() {
         if (!this.activeSignal || this.currentTrade) return;
@@ -509,7 +507,10 @@ class SignalEngine {
         this.renderPending();
         this.renderHistory();
         
-        if (isWin) this.playSound('win'); else if (!isS    renderPending() {
+        if (isWin) this.playSound('win'); else if (!isSkip) this.playSound('loss');
+    }
+
+    renderPending() {
         const container = document.getElementById('pending-list');
         if (!container) return;
 
@@ -546,10 +547,6 @@ class SignalEngine {
                     <span style="font-family: 'Outfit'; font-size: 20px; color: var(--accent); font-weight: 900;">${timeStr}</span>
                 </div>
                 ${actionArea}
-            </div>
-        `;
-    }
-div>
             </div>
         `;
     }
@@ -642,4 +639,4 @@ div>
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => { window.engine = new SignalEngine(); });
+// O SignalsEngine agora é instanciado via index.html para garantir o contexto global.
