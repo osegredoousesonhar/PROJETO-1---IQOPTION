@@ -5,7 +5,9 @@
 class SignalEngine {
     constructor() {
         this.activeSignal = null;
-        this.radarSignals = [];
+        this.radarSignalsM1 = [];
+        this.radarSignalsM5 = [];
+        this.pendingTrades = [];
         this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
         this.stats = JSON.parse(localStorage.getItem('iq_stats')) || { wins: 0, losses: 0, streak: 0 };
         this.isAdmin = false;
@@ -180,10 +182,9 @@ class SignalEngine {
                 // Entrada Iniciada - Mover para Pendentes (Descer para apuração)
                 if (timerEl) {
                     timerEl.innerText = "ENTRADA AGORA!";
-                    timerEl.style.color = "#00e676"; // Verde Brilhante
+                    timerEl.style.color = "#00e676"; 
                 }
                 
-                // Evita chamadas duplicadas
                 if (!this.activeSignal.moving) {
                     this.activeSignal.moving = true;
                     this.playSound('win'); 
@@ -199,10 +200,15 @@ class SignalEngine {
         if (this.pendingTrades.length > 0) {
             this.pendingTrades = this.pendingTrades.filter(trade => {
                 const diff = Math.floor((trade.resTime - now) / 1000);
+                
+                // Se o sinal não foi confirmado e faltam menos de 20s, trava a confirmação
+                if (!trade.confirmed && diff <= 20) {
+                    trade.lockConfirmation = true;
+                }
+
                 if (diff <= 0) {
-                    // Auto-resolução pela IA (Sempre acontece ao fim do tempo)
                     const isWin = Math.random() < (this.targetWinRate / 100);
-                    this.resolveTrade(trade.id, isWin ? 'win' : 'loss', true); // true = auto
+                    this.resolveTrade(trade.id, isWin ? 'win' : 'loss', true);
                     return false;
                 }
                 return true;
@@ -228,20 +234,28 @@ class SignalEngine {
     }
 
     updateRadarTimers(now) {
-        this.radarSignals.forEach((s, idx) => {
-            const timerEl = document.getElementById(`radar-timer-${idx}`);
+        // Atualiza Timers M1
+        this.radarSignalsM1.forEach((s, idx) => {
+            const timerEl = document.getElementById(`radar-timer-m1-${idx}`);
             if (timerEl) {
-                const entryDate = s.entry instanceof Date ? s.entry : new Date(s.entry);
-                const diff = Math.floor((entryDate.getTime() - now) / 1000);
-                if (diff > 0) {
-                    const m = Math.floor(diff / 60);
-                    const s_rem = diff % 60;
-                    timerEl.innerText = `${m.toString().padStart(2, '0')}:${s_rem.toString().padStart(2, '0')}`;
-                } else {
-                    timerEl.innerText = "EXPIRADO";
-                }
+                const diff = Math.floor((s.entry.getTime() - now) / 1000);
+                timerEl.innerText = diff > 0 ? this.formatTimer(diff) : "EXPIRADO";
             }
         });
+        // Atualiza Timers M5
+        this.radarSignalsM5.forEach((s, idx) => {
+            const timerEl = document.getElementById(`radar-timer-m5-${idx}`);
+            if (timerEl) {
+                const diff = Math.floor((s.entry.getTime() - now) / 1000);
+                timerEl.innerText = diff > 0 ? this.formatTimer(diff) : "EXPIRADO";
+            }
+        });
+    }
+
+    formatTimer(diff) {
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
     generateSignal() {
@@ -302,33 +316,48 @@ class SignalEngine {
         `;
         
         document.getElementById('current-asset').innerText = s.pair;
-        if (window.marketChart) window.marketChart.changeAsset(s.pair);
-    }
+        if (window.marketChart) window.marketChart.    generateRadar() {
+        const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/CAD', 'EUR/GBP', 'USD/CHF', 'EUR/AUD', 'GBP/AUD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)'];
+        
+        this.radarSignalsM1 = [];
+        this.radarSignalsM5 = [];
 
-    generateRadar() {
-        const pairs = ['USD/CHF', 'EUR/AUD', 'GBP/AUD', 'EUR/USD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)', 'BTC/USD', 'ETH/USD', 'GBP/USD', 'AUD/JPY'];
-        this.radarSignals = [];
+        // Top 5 M1
         for (let i = 0; i < 5; i++) {
-            const pair = pairs[Math.floor(Math.random() * pairs.length)];
-            const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
-            this.radarSignals.push({
-                pair: pair,
-                type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
-                prob: Math.floor(Math.random() * 10 + 88),
-                timeframe: timeframe,
-                entry: this.calculateEntryTime(timeframe, (i + 1) * 2),
-                duration: timeframe === 'M5' ? 300000 : 60000
-            });
+            this.radarSignalsM1.push(this.createRadarSignal(pairs[i] || pairs[0], 'M1', (i + 1) * 2));
         }
+
+        // Top 5 M5
+        for (let i = 0; i < 5; i++) {
+            this.radarSignalsM5.push(this.createRadarSignal(pairs[pairs.length - 1 - i] || pairs[0], 'M5', (i + 1) * 5));
+        }
+
         this.renderRadar();
     }
 
+    createRadarSignal(pair, timeframe, offsetMin) {
+        return {
+            pair: pair,
+            type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
+            prob: Math.floor(Math.random() * 10 + 88),
+            timeframe: timeframe,
+            entry: this.calculateEntryTime(timeframe, offsetMin),
+            duration: timeframe === 'M5' ? 300000 : 60000
+        };
+    }
+
     renderRadar() {
-        const list = document.getElementById('radar-list');
-        if (!list) return;
-        list.innerHTML = this.radarSignals.map((s, idx) => `
-            <div class="radar-hero-card animate-slide" data-index="${idx}">
-                <!-- Timeframe Badge -->
+        const listM1 = document.getElementById('radar-list-m1');
+        const listM5 = document.getElementById('radar-list-m5');
+        if (!listM1 || !listM5) return;
+
+        listM1.innerHTML = this.radarSignalsM1.map((s, idx) => this.getRadarCardHTML(s, `m1-${idx}`)).join('');
+        listM5.innerHTML = this.radarSignalsM5.map((s, idx) => this.getRadarCardHTML(s, `m5-${idx}`)).join('');
+    }
+
+    getRadarCardHTML(s, idSuffix) {
+        return `
+            <div class="radar-hero-card animate-slide" onclick="window.engine.selectRadarSignal('${idSuffix}')">
                 <div style="position: absolute; top: 10px; left: 10px; background: ${s.timeframe === 'M1' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 184, 0, 0.3)'}; 
                             color: white; padding: 2px 8px; border-radius: 4px; font-size: 8px; font-weight: 900; 
                             border: 1px solid currentColor; z-index: 5;">
@@ -350,7 +379,7 @@ class SignalEngine {
                 <div style="margin-top: 15px; margin-bottom: 20px; text-align: left;">
                     <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 6px; color: var(--text-dim);">
                         <span>SINAL IA AGUARDANDO</span>
-                        <span id="radar-timer-${idx}" style="color: white; font-size: 11px;">--:--</span>
+                        <span id="radar-timer-${idSuffix}" style="color: white; font-size: 11px;">--:--</span>
                     </div>
                     
                     <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 6px; margin-top: 12px; color: var(--text-dim);">
@@ -364,15 +393,18 @@ class SignalEngine {
 
                 <button class="confirm-btn" style="width: 100%; padding: 10px; font-size: 10px; height: auto; border-radius: 12px; letter-spacing: 1px; font-weight: 900;">SELECIONAR OPERAÇÃO</button>
             </div>
-        `).join('');
+        `;
     }
 
-    selectRadarSignal(idx) {
-        const selected = this.radarSignals[idx];
+    selectRadarSignal(idStr) {
+        const [type, idx] = idStr.split('-');
+        const selected = type === 'm1' ? this.radarSignalsM1[idx] : this.radarSignalsM5[idx];
         if (!selected) return;
         this.activeSignal = { ...selected, id: Date.now() };
         this.renderPrimary();
         this.playSound('new');
+    }
+   this.playSound('new');
     }
 
     confirmTrade() {
@@ -406,10 +438,28 @@ class SignalEngine {
             ...sig, 
             amount: tradeData.amount, 
             confirmed: tradeData.confirmed, 
+            lockConfirmation: false,
             timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
             resTime: Date.now() + (sig.timeframe === 'M5' ? 300000 : 60000)
         }];
         this.currentTrade = null;
+        this.renderPending();
+    }
+
+    confirmPendingTrade() {
+        const t = this.pendingTrades[0];
+        if (!t || t.confirmed || t.lockConfirmation) return;
+
+        const amount = parseFloat(document.getElementById('trade-amount')?.value || 5.00);
+        if (amount > this.balance) { alert("Saldo insuficiente!"); return; }
+
+        this.balance -= amount;
+        t.confirmed = true;
+        t.amount = amount;
+        
+        this.updateBalanceUI();
+        this.saveData();
+        this.playSound('new');
         this.renderPending();
     }
 
@@ -452,34 +502,47 @@ class SignalEngine {
         this.renderPending();
         this.renderHistory();
         
-        if (isWin) this.playSound('win'); else if (!isSkip) this.playSound('loss');
-    }
-
-    renderPending() {
+        if (isWin) this.playSound('win'); else if (!isS    renderPending() {
         const container = document.getElementById('pending-list');
         if (!container) return;
+
         if (this.pendingTrades.length === 0) {
             container.innerHTML = '<p style="font-size: 11px; opacity: 0.3; text-align: center; padding: 20px;">Aguardando sinal...</p>';
             return;
         }
+
         const t = this.pendingTrades[0];
         const now = Date.now();
         const diff = Math.max(0, Math.floor((t.resTime - now) / 1000));
-        const m = Math.floor(diff / 60);
-        const s = diff % 60;
-        const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        const timeStr = this.formatTimer(diff);
+
+        let actionArea = '';
+        if (t.confirmed) {
+            actionArea = `<p style="font-size: 10px; color: var(--green); font-weight: 900; text-align: center; margin-top: 10px;">OPERANDO SALDO REAL (R$ ${t.amount.toFixed(2)})</p>`;
+        } else if (t.lockConfirmation) {
+            actionArea = `<p style="font-size: 9px; color: var(--red); font-weight: 800; text-align: center; margin-top: 10px; opacity: 0.7;">CONFIRMAÇÃO BLOQUEADA (FIM DE TIME)</p>`;
+        } else {
+            actionArea = `
+                <button onclick="window.engine.confirmPendingTrade()" class="confirm-btn" style="width: 100%; margin-top: 10px; background: var(--accent); color: black; font-size: 10px; padding: 12px;">
+                    CONFIRMAR ENTRADA AGORA
+                </button>
+            `;
+        }
 
         container.innerHTML = `
-            <div class="pending-card animate-slide" style="padding: 15px; border-color: ${t.confirmed ? 'var(--accent)' : 'var(--text-dim)'}">
+            <div class="pending-card animate-slide" style="padding: 18px; border-color: ${t.confirmed ? 'var(--green)' : 'var(--text-dim)'}; background: rgba(255,255,255,0.02);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <p style="font-size: 14px; font-weight: 900; color: white;">${t.pair} - ${t.type}</p>
-                    <span style="font-family: 'Outfit'; font-size: 16px; color: var(--accent); font-weight: 900;">${timeStr}</span>
+                    <div>
+                        <p style="font-size: 14px; font-weight: 900; color: white; margin-bottom: 2px;">${t.pair}</p>
+                        <p style="font-size: 10px; font-weight: 800; color: ${t.type === 'COMPRA' ? 'var(--green)' : 'var(--red)'}">${t.type} - IA ${t.timeframe}</p>
+                    </div>
+                    <span style="font-family: 'Outfit'; font-size: 20px; color: var(--accent); font-weight: 900;">${timeStr}</span>
                 </div>
-                <p style="font-size: 9px; color: var(--text-dim); margin-top: 5px;">${t.confirmed ? 'OPERANDO SALDO REAL' : 'APURAÇÃO AUTOMÁTICA (OBSERVAÇÃO)'}</p>
-                <div style="display: flex; gap: 5px; margin-top: 10px;">
-                    <button onclick="window.engine.resolveTrade(null, 'win')" class="p-btn win" style="flex:1">WIN</button>
-                    <button onclick="window.engine.resolveTrade(null, 'loss')" class="p-btn loss" style="flex:1">LOSS</button>
-                </div>
+                ${actionArea}
+            </div>
+        `;
+    }
+div>
             </div>
         `;
     }

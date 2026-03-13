@@ -416,7 +416,7 @@ body {
     background: linear-gradient(145deg, #1a1f35, #0a0c14);
     border-radius: 16px;
     width: 100%; 
-    min-height: 450px; /* Aumentado em 50% para layout premium e bem distribuído */
+    min-height: 480px; /* Aumentado para 480px (Premium) conforme solicitado */
     min-width: 0;
     flex-shrink: 1;
     cursor: pointer;
