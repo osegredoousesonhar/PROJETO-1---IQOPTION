@@ -455,7 +455,8 @@ class SignalEngine {
         const t = this.pendingTrades[0];
         if (!t || t.confirmed || t.lockConfirmation) return;
 
-        const amount = parseFloat(document.getElementById('trade-amount')?.value || 5.00);
+        const amountInput = document.getElementById('trade-amount');
+        const amount = amountInput ? parseFloat(amountInput.value) : 5.00;
         if (amount > this.balance) { alert("Saldo insuficiente!"); return; }
 
         this.balance -= amount;
