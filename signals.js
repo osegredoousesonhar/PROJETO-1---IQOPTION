@@ -14,8 +14,8 @@ class SignalEngine {
         this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
         this.globalIndications = JSON.parse(localStorage.getItem('iq_global_indications')) || [];
         this.pendingEvaluations = []; 
-        this.initialBalance = 230.00;
-        this.balance = parseFloat(localStorage.getItem('iq_balance')) || 230.00;
+        this.initialBalance = 235.62;
+        this.balance = parseFloat(localStorage.getItem('iq_balance')) || 235.62;
         
         const dayStart = localStorage.getItem('iq_daily_timestamp');
         const now = Date.now();
@@ -158,12 +158,22 @@ class SignalEngine {
                     timerEl.style.fontSize = '18px';
                 }
             } else {
-                // Entrada Iniciada
-                if (timerEl) timerEl.innerText = "ENTRADA AGORA!";
-                setTimeout(() => {
-                    this.moveToPending(this.activeSignal);
-                    this.generateSignal();
-                }, 2000);
+                // Entrada Iniciada - Mover para Pendentes (Descer para apuração)
+                if (timerEl) {
+                    timerEl.innerText = "ENTRADA AGORA!";
+                    timerEl.style.color = "#00e676"; // Verde Brilhante
+                }
+                
+                // Evita chamadas duplicadas
+                if (!this.activeSignal.moving) {
+                    this.activeSignal.moving = true;
+                    this.playSound('win'); // Alerta sonoro de entrada
+                    setTimeout(() => {
+                        this.moveToPending(this.activeSignal);
+                        this.generateSignal();
+                        // Contabiliza apenas se for um novo sinal gerado/selecionado
+                    }, 1000);
+                }
             }
         }
 
@@ -204,12 +214,9 @@ class SignalEngine {
 
         this.renderPrimary();
         
-        const btn = document.getElementById('btn-confirm-trade');
-        if (btn) {
-            btn.innerText = "Confirmar Entrada";
-            btn.style.background = "var(--accent)";
-            btn.disabled = false;
-        }
+        // Contabiliza estatística de indicações geradas no Principal
+        this.stats.streak++; // Apenas marcador interno para saber que houve movimentação
+        this.saveData();
     }
 
     renderPrimary() {
@@ -326,6 +333,7 @@ class SignalEngine {
         this.currentTrade = { id: this.activeSignal.id, amount: amount, pair: this.activeSignal.pair };
         this.moveToPending(this.activeSignal);
         this.generateSignal();
+        this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 235.62;
         this.updateBalanceUI();
         this.saveData();
         this.playSound('new');
