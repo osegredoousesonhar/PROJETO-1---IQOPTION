@@ -8,8 +8,8 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        // Força Reset para R$ 262,78 (v4.8 - Teste 30min)
-        const currentVersion = 'v4.8_test_30min';
+        // Força Reset para R$ 262,78 (v4.9 - Refinamentos Finais)
+        const currentVersion = 'v4.9_final_refinement';
         const lastAppliedVersion = localStorage.getItem('iq_system_version');
 
         if (lastAppliedVersion !== currentVersion) {
@@ -286,8 +286,8 @@ class SignalEngine {
                 <span class="action-label">${s.type}</span>
             </div>
             <div class="timer-display">
-                <span id="main-timer" class="live-timer">00:00</span>
-                <p id="entry-time-label" class="entry-badge">PRÓXIMA ENTRADA: ${entryStr}</p>
+                <span id="main-timer" class="live-timer timer-highlight">00:00</span>
+                <p id="entry-time-label" class="entry-badge entry-time-highlight">PRÓXIMA ENTRADA: ${entryStr}</p>
             </div>
             <div class="input-container">
                 <input type="number" id="trade-amount" value="5.00" class="trade-input">
@@ -542,7 +542,13 @@ class SignalEngine {
     renderHistory() {
         const list = document.getElementById('history-list');
         if (!list) return;
-        list.innerHTML = this.history.map(item => `
+
+        // Mostrar apenas as 10 últimas ordens confirmadas (Execução de Sinal)
+        const filteredHistory = this.history
+            .filter(item => item.confirmed === true)
+            .slice(0, 10);
+
+        list.innerHTML = filteredHistory.map(item => `
             <div class="history-card animate-slide">
                 <div class="h-card-top">
                     <span class="history-asset">${item.pair}</span>
