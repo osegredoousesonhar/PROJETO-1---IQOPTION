@@ -322,6 +322,9 @@ class SignalEngine {
             window.marketChart.changeAsset(s.pair);
         }
     }
+
+    generateRadar() {
+        const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/CAD', 'EUR/GBP', 'USD/CHF', 'EUR/AUD', 'GBP/AUD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)'];
         
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
