@@ -8,42 +8,20 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
-        this.stats = JSON.parse(localStorage.getItem('iq_stats')) || { wins: 0, losses: 0, streak: 0 };
+        this.history = [];
+        this.stats = { wins: 0, losses: 0, streak: 0 };
         this.isAdmin = false;
         this.targetWinRate = 94; 
         this.news = [];
-        this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
-        this.globalIndications = JSON.parse(localStorage.getItem('iq_global_indications')) || [];
+        this.iaStats = { wins: 0, losses: 0 };
+        this.globalIndications = [];
         this.pendingEvaluations = []; 
         this.initialBalance = 265.65;
-        this.balance = parseFloat(localStorage.getItem('iq_balance'));
+        this.balance = 265.65;
         
-        // Marcador de Versão para Sincronização de Saldo (Força 265.65 uma vez)
-        const balanceVersion = localStorage.getItem('iq_balance_v_set');
-        if (balanceVersion !== '265.65') {
-            this.balance = 265.65;
-            this.dailyInitialBalance = 265.65;
-            this.iaStats = { wins: 0, losses: 0 };
-            localStorage.setItem('iq_balance', this.balance);
-            localStorage.setItem('iq_daily_balance', this.balance);
-            localStorage.setItem('iq_ia_stats', JSON.stringify(this.iaStats));
-            localStorage.setItem('iq_balance_v_set', '265.65'); 
-            localStorage.setItem('iq_reset_date', new Date().toLocaleDateString('pt-BR'));
-        }
-
-        const lastReset = localStorage.getItem('iq_reset_date');
-        const todayStr = new Date().toLocaleDateString('pt-BR');
-        
-        if (lastReset !== todayStr) {
-            this.iaStats = { wins: 0, losses: 0 };
-            this.dailyInitialBalance = this.balance;
-            localStorage.setItem('iq_reset_date', todayStr);
-            localStorage.setItem('iq_ia_stats', JSON.stringify(this.iaStats));
-            localStorage.setItem('iq_daily_balance', this.dailyInitialBalance);
-        } else {
-            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || this.balance;
-        }
+        this.iaStats = { wins: 0, losses: 0 };
+        this.dailyInitialBalance = 265.65;
+        this.saveData();
 
         this.pendingTrades = [];
         this.currentTrade = null;
