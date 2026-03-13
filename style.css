@@ -414,16 +414,19 @@ body {
 
 .radar-hero-card {
     background: linear-gradient(145deg, #1a1f35, #0a0c14);
-    border: 1px solid rgba(255, 184, 0, 0.2);
-    border-top: 4px solid var(--accent); /* Destaque no topo */
     border-radius: 16px;
-    width: 100%; /* Ocupa o grid */
+    width: 100%; 
+    min-height: 280px; /* Aumentado em ~30% para beleza */
     min-width: 0;
     flex-shrink: 1;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    position: relative;
+    padding: 20px 15px; /* Mais respiro interno */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     position: relative;
     overflow: hidden;
 }

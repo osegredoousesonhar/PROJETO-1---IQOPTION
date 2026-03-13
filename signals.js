@@ -322,10 +322,10 @@ class SignalEngine {
         list.innerHTML = this.radarSignals.map((s, idx) => `
             <div class="radar-hero-card animate-slide" data-index="${idx}">
                 <!-- Timeframe Badge -->
-                <div style="position: absolute; top: 12px; right: 12px; background: ${s.timeframe === 'M1' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 184, 0, 0.2)'}; 
-                            color: ${s.timeframe === 'M1' ? '#818cf8' : 'var(--accent)'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; 
-                            border: 1px solid currentColor;">
-                    ${s.timeframe} ANALYTICS
+                <div style="position: absolute; top: 10px; left: 10px; background: ${s.timeframe === 'M1' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 184, 0, 0.3)'}; 
+                            color: white; padding: 2px 8px; border-radius: 4px; font-size: 8px; font-weight: 900; 
+                            border: 1px solid currentColor; z-index: 5;">
+                    IA ${s.timeframe}
                 </div>
 
                 <div class="hero-signal-header" style="margin-top: 10px;">
