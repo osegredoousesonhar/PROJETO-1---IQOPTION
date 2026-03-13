@@ -361,12 +361,11 @@ body {
 }
 
 .limited-radar {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 12px;
-    overflow-x: hidden;
-    padding: 5px 0;
+    width: 100%;
+    padding: 10px 0;
 }
 
 /* NEWS PANEL */
@@ -418,8 +417,9 @@ body {
     border: 1px solid rgba(255, 184, 0, 0.2);
     border-top: 4px solid var(--accent); /* Destaque no topo */
     border-radius: 16px;
-    width: 215px; /* Reduzido para caber 5 cards */
-    flex-shrink: 0;
+    width: 100%; /* Ocupa o grid */
+    min-width: 0;
+    flex-shrink: 1;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;

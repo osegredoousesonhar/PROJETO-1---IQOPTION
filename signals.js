@@ -179,14 +179,28 @@ class SignalEngine {
                 // Evita chamadas duplicadas
                 if (!this.activeSignal.moving) {
                     this.activeSignal.moving = true;
-                    this.playSound('win'); // Alerta sonoro de entrada
+                    this.playSound('win'); 
                     setTimeout(() => {
                         this.moveToPending(this.activeSignal);
                         this.generateSignal();
-                        // Contabiliza apenas se for um novo sinal gerado/selecionado
                     }, 1000);
                 }
             }
+        }
+
+        // 3. Processamento de Sinais em Apuração (Pendentes)
+        if (this.pendingTrades.length > 0) {
+            this.pendingTrades = this.pendingTrades.filter(trade => {
+                const diff = Math.floor((trade.resTime - now) / 1000);
+                if (diff <= 0) {
+                    // Auto-resolução se o usuário não clicou ainda
+                    const isWin = Math.random() < (this.targetWinRate / 100);
+                    this.resolveTrade(null, isWin ? 'win' : 'loss');
+                    return false;
+                }
+                return true;
+            });
+            this.renderPending();
         }
 
         this.checkMidnightReset();
@@ -229,13 +243,8 @@ class SignalEngine {
         const pair = basePairs[Math.floor(Math.random() * basePairs.length)] + (isOTC ? ' (OTC)' : '');
         const entryTime = this.calculateEntryTime('M5', 5);
         
-        this.activeSignal = {
-            id: Date.now(),
-            pair: pair,
-            type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
-            timeframe: Math.random() > 0.5 ? 'M1' : 'M5',
-            prob: Math.floor(Math.random() * 12 + 86),
-            entry: entryTime
+            entry: entryTime,
+            duration: timeframe === 'M5' ? 300000 : 60000 
         };
 
         this.renderPrimary();
@@ -293,7 +302,8 @@ class SignalEngine {
                 type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
                 prob: Math.floor(Math.random() * 10 + 88),
                 timeframe: timeframe,
-                entry: this.calculateEntryTime(timeframe, (i + 1) * 2)
+                entry: this.calculateEntryTime(timeframe, (i + 1) * 2),
+                duration: timeframe === 'M5' ? 300000 : 60000
             });
         }
         this.renderRadar();
@@ -338,7 +348,7 @@ class SignalEngine {
                     </div>
                 </div>
 
-                <button class="confirm-btn" style="width: 100%; padding: 14px; font-size: 11px; height: auto; border-radius: 12px; letter-spacing: 1.5px; font-weight: 900;">SELECIONAR OPERAÇÃO</button>
+                <button class="confirm-btn" style="width: 100%; padding: 10px; font-size: 10px; height: auto; border-radius: 12px; letter-spacing: 1px; font-weight: 900;">SELECIONAR OPERAÇÃO</button>
             </div>
         `).join('');
     }
@@ -371,7 +381,8 @@ class SignalEngine {
             ...sig, 
             amount: tradeData.amount, 
             confirmed: tradeData.confirmed, 
-            timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) 
+            timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
+            resTime: Date.now() + (sig.timeframe === 'M5' ? 300000 : 60000)
         }];
         this.currentTrade = null;
         this.renderPending();
@@ -422,13 +433,22 @@ class SignalEngine {
             return;
         }
         const t = this.pendingTrades[0];
+        const now = Date.now();
+        const diff = Math.max(0, Math.floor((t.resTime - now) / 1000));
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
         container.innerHTML = `
-            <div class="pending-card animate-slide" style="padding: 15px;">
-                <p style="font-size: 14px; font-weight: 900; color: var(--accent);">${t.pair} - ${t.type}</p>
+            <div class="pending-card animate-slide" style="padding: 15px; border-color: ${t.confirmed ? 'var(--accent)' : 'var(--text-dim)'}">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <p style="font-size: 14px; font-weight: 900; color: white;">${t.pair} - ${t.type}</p>
+                    <span style="font-family: 'Outfit'; font-size: 16px; color: var(--accent); font-weight: 900;">${timeStr}</span>
+                </div>
+                <p style="font-size: 9px; color: var(--text-dim); margin-top: 5px;">${t.confirmed ? 'OPERANDO SALDO REAL' : 'APURAÇÃO AUTOMÁTICA (OBSERVAÇÃO)'}</p>
                 <div style="display: flex; gap: 5px; margin-top: 10px;">
                     <button onclick="window.engine.resolveTrade(null, 'win')" class="p-btn win" style="flex:1">WIN</button>
                     <button onclick="window.engine.resolveTrade(null, 'loss')" class="p-btn loss" style="flex:1">LOSS</button>
-                    <button onclick="window.engine.resolveTrade(null, 'skip')" class="p-btn skip" style="flex:1">SKIP</button>
                 </div>
             </div>
         `;
