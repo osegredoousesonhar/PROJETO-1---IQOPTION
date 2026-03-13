@@ -1,11 +1,12 @@
 {
   "name": "iq-signals-pro",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Elite Trading Terminal",
   "main": "index.html",
   "scripts": {
     "start": "serve .",
-    "dev": "serve ."
+    "dev": "serve .",
+    "build": "echo 'Build complete'"
   },
   "dependencies": {
     "serve": "^14.2.1"
