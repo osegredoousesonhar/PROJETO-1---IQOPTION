@@ -22,6 +22,8 @@ class SignalEngine {
             this.stats = { wins: 0, losses: 0, streak: 0 };
             
             localStorage.setItem('iq_system_version', currentVersion);
+            localStorage.setItem('iq_balance', '262.78');
+            localStorage.setItem('iq_daily_balance', '262.78');
             this.saveData();
         } else {
             this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
@@ -164,7 +166,8 @@ class SignalEngine {
                 if (timerEl) {
                     const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                     timerEl.innerText = `FALTAM ${timeStr} PARA ENTRADA`;
-                    timerEl.style.color = diff <= 30 ? '#ff5252' : 'var(--accent)';
+                    // Respeita as novas cores: Verde se > 30s, Vermelho se <= 30s
+                    timerEl.style.color = diff <= 30 ? '#ff5252' : '#00e676';
                     timerEl.style.fontSize = '18px';
                 }
             } else {
