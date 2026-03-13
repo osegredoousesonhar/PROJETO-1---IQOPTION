@@ -200,9 +200,9 @@ class SignalEngine {
             this.pendingTrades = this.pendingTrades.filter(trade => {
                 const diff = Math.floor((trade.resTime - now) / 1000);
                 if (diff <= 0) {
-                    // Auto-resolução se o usuário não clicou ainda
+                    // Auto-resolução pela IA (Sempre acontece ao fim do tempo)
                     const isWin = Math.random() < (this.targetWinRate / 100);
-                    this.resolveTrade(null, isWin ? 'win' : 'loss');
+                    this.resolveTrade(trade.id, isWin ? 'win' : 'loss', true); // true = auto
                     return false;
                 }
                 return true;
@@ -379,14 +379,25 @@ class SignalEngine {
         if (!this.activeSignal || this.currentTrade) return;
         const amount = parseFloat(document.getElementById('trade-amount').value);
         if (amount > this.balance) { alert("Saldo insuficiente!"); return; }
+        
+        // Marca o sinal ativo como confirmado antes de enfileirar
+        this.activeSignal.confirmed = true;
+        this.activeSignal.amount = amount;
+        
         this.balance -= amount;
-        this.currentTrade = { id: this.activeSignal.id, amount: amount, pair: this.activeSignal.pair };
-        this.moveToPending(this.activeSignal);
-        this.generateSignal();
-        this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 235.62;
+        this.currentTrade = { id: this.activeSignal.id, amount: amount, pair: this.activeSignal.pair, confirmed: true };
+        
         this.updateBalanceUI();
         this.saveData();
         this.playSound('new');
+        
+        // Feedback visual no botão
+        const btn = document.getElementById('btn-confirm-trade');
+        if (btn) {
+            btn.innerText = "ENTRADA CONFIRMADA!";
+            btn.style.background = "var(--green)";
+            btn.disabled = true;
+        }
     }
 
     moveToPending(sig) {
@@ -402,41 +413,46 @@ class SignalEngine {
         this.renderPending();
     }
 
-    resolveTrade(id, result) {
+    resolveTrade(id, result, isAuto = false) {
         const t = this.pendingTrades[0];
         if (!t) return;
         
         const isWin = result === 'win';
         const isSkip = result === 'skip';
 
-        // Atualiza SALDO apenas se foi uma entrada confirmada
+        // Atualiza SALDO apenas se foi uma entrada confirmada (TRADE REAL)
         if (t.confirmed) {
-            if (isWin) this.balance += t.amount * 1.85;
-            else if (isSkip) this.balance += t.amount;
-            // Se for loss, o valor já foi debitado no confirmTrade()
+            if (isWin) {
+                const profit = t.amount * 1.85; // Retorno total (Investimento + 85% lucro)
+                this.balance += profit;
+            } else if (isSkip) {
+                this.balance += t.amount; // Devolve se cancelado
+            }
         }
 
-        // Atualiza ESTATÍSTICA DIÁRIA sempre (independente de confirmação)
+        // Atualiza ESTATÍSTICA DIÁRIA sempre (IA GLOBAL)
         if (!isSkip) {
             this.iaStats[isWin ? 'wins' : 'losses']++;
         }
 
-        // Adiciona ao Histórico em formato detalhado
+        // Adiciona ao Histórico
         this.history.unshift({ 
             ...t, 
             win: isWin, 
             skip: isSkip,
             h: t.timestamp,
-            profit: t.confirmed && isWin ? (t.amount * 0.85) : 0
+            profit: (t.confirmed && isWin) ? (t.amount * 0.85) : 0
         });
         
-        if (this.history.length > 10) this.history.pop();
+        if (this.history.length > 20) this.history.pop();
         
         this.pendingTrades = [];
         this.updateBalanceUI();
         this.saveData();
         this.renderPending();
         this.renderHistory();
+        
+        if (isWin) this.playSound('win'); else if (!isSkip) this.playSound('loss');
     }
 
     renderPending() {
