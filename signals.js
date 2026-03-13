@@ -8,20 +8,29 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        this.history = [];
-        this.stats = { wins: 0, losses: 0, streak: 0 };
-        this.isAdmin = false;
-        this.targetWinRate = 94; 
-        this.news = [];
-        this.iaStats = { wins: 0, losses: 0 };
-        this.globalIndications = [];
-        this.pendingEvaluations = []; 
-        this.initialBalance = 258.40;
-        this.balance = 258.40;
-        
-        this.iaStats = { wins: 0, losses: 0 };
-        this.dailyInitialBalance = 258.40;
-        this.saveData();
+        // Força Reset para R$ 258,40 (v4.7 - Reset Forçado)
+        const currentVersion = 'v4.7_forced';
+        const lastAppliedVersion = localStorage.getItem('iq_system_version');
+
+        if (lastAppliedVersion !== currentVersion) {
+            console.log("Aplicando Reset de Versão: " + currentVersion);
+            this.balance = 258.40;
+            this.initialBalance = 258.40;
+            this.dailyInitialBalance = 258.40;
+            this.history = [];
+            this.iaStats = { wins: 0, losses: 0 };
+            this.stats = { wins: 0, losses: 0, streak: 0 };
+            
+            localStorage.setItem('iq_system_version', currentVersion);
+            this.saveData();
+        } else {
+            this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
+            this.stats = JSON.parse(localStorage.getItem('iq_stats')) || { wins: 0, losses: 0, streak: 0 };
+            this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
+            this.balance = parseFloat(localStorage.getItem('iq_balance')) || 258.40;
+            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 258.40;
+            this.initialBalance = 258.40;
+        }
 
         this.pendingTrades = [];
         this.currentTrade = null;
