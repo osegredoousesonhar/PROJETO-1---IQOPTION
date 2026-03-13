@@ -1,5 +1,5 @@
 /**
- * IQ SIGNALS PRO - GRÁFICOS v5 (Garantia Total)
+ * IQ SIGNALS PRO - GRÁFICOS v5.1
  */
 
 class MarketChart {
@@ -12,78 +12,35 @@ class MarketChart {
     }
 
     async init() {
-        if (!this.container) return;
-        
-        // Verifica se a biblioteca carregou
-        if (typeof LightweightCharts === 'undefined') {
-            console.warn("LightweightCharts não encontrado. Aguardando...");
-            setTimeout(() => this.init(), 200);
+        if (!this.container || typeof LightweightCharts === 'undefined') {
+            setTimeout(() => this.init(), 500);
             return;
         }
 
-        let w = this.container.clientWidth;
-        let h = this.container.clientHeight;
+        let w = this.container.clientWidth || 600;
+        let h = this.container.clientHeight || 300;
         
-        if (w === 0 || h === 0) {
-            setTimeout(() => this.init(), 100);
-            return;
-        }
+        console.log("Iniciando Gráfico Tradicional:", w, h);
 
-        console.log(`Inicializando gráfico: ${w}x${h}`);
-
-        const chartOptions = {
+        this.chart = LightweightCharts.createChart(this.container, {
             width: w,
             height: h,
-            layout: {
-                background: { type: 'solid', color: '#0e111a' },
-                textColor: '#94a3b8',
-            },
-            grid: {
-                vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
-                horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
-            },
-            crosshair: {
-                mode: 0,
-            },
-            timeScale: {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-                timeVisible: true,
-                secondsVisible: false,
-            },
-        };
+            layout: { background: { type: 'solid', color: '#05060a' }, textColor: '#94a3b8' },
+            grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255,255,255,0.05)' } },
+            timeScale: { visible: true, timeVisible: true }
+        });
 
-        this.chart = LightweightCharts.createChart(this.container, chartOptions);
         this.series = this.chart.addCandlestickSeries({
-            upColor: '#00e676',
-            downColor: '#ff5252',
-            borderVisible: false,
-            wickUpColor: '#00e676',
-            wickDownColor: '#ff5252',
+            upColor: '#00e676', downColor: '#ff5252',
+            borderVisible: false, wickUpColor: '#00e676', wickDownColor: '#ff5252',
         });
 
         this.generateData();
-        this.startStream();
+        setInterval(() => this.updateChart(), 1000);
 
-        // Força um resize inicial após curto delay (essencial para alguns navegadores)
-        setTimeout(() => {
-            if (this.chart && this.container) {
-                this.chart.applyOptions({
-                    width: this.container.clientWidth,
-                    height: this.container.clientHeight
-                });
-            }
-        }, 500);
-
-        // Monitor de Redimensionamento Robusto
-        const ro = new ResizeObserver(() => {
-            if (this.chart && this.container) {
-                this.chart.applyOptions({
-                    width: this.container.clientWidth,
-                    height: this.container.clientHeight
-                });
-            }
-        });
-        ro.observe(this.container);
+        new ResizeObserver(() => {
+            if (this.chart) this.chart.applyOptions({ width: this.container.clientWidth, height: this.container.clientHeight });
+        }).observe(this.container);
     }
 
     generateData() {
@@ -91,45 +48,34 @@ class MarketChart {
         let t = Math.floor(Date.now() / 1000) - 100 * 60;
         for (let i = 0; i < 100; i++) {
             const open = this.lastPrice;
-            const close = open + (Math.random() - 0.5) * 0.0006;
-            data.push({ 
-                time: t, 
-                open, 
-                high: Math.max(open, close) + 0.0001, 
-                low: Math.min(open, close) - 0.0001, 
-                close 
-            });
+            const close = open + (Math.random() - 0.5) * 0.0010;
+            data.push({ time: t, open, high: Math.max(open, close) + 0.0005, low: Math.min(open, close) - 0.0005, close });
             this.lastPrice = close;
             t += 60;
         }
         this.series.setData(data);
     }
 
-    startStream() {
-        setInterval(() => {
-            const now = Math.floor(Date.now() / 1000);
-            const time = now - (now % 60);
-            const close = this.lastPrice + (Math.random() - 0.5) * 0.0001;
-            this.series.update({
-                time: time,
-                open: this.lastPrice,
-                high: Math.max(this.lastPrice, close) + 0.00005,
-                low: Math.min(this.lastPrice, close) - 0.00005,
-                close
-            });
-            this.lastPrice = close;
-        }, 1000);
+    updateChart() {
+        if (!this.series) return;
+        const now = Math.floor(Date.now() / 1000);
+        const time = now - (now % 60);
+        const close = this.lastPrice + (Math.random() - 0.5) * 0.0002;
+        this.series.update({
+            time: time,
+            open: this.lastPrice,
+            high: Math.max(this.lastPrice, close) + 0.0001,
+            low: Math.min(this.lastPrice, close) - 0.0001,
+            close: close
+        });
+        this.lastPrice = close;
     }
 
-    // Método para trocar de ativo e resetar o gráfico
-    changeAsset(newAsset) {
-        if (!this.series) return;
-        console.log("Mudando gráfico para: " + newAsset);
-        this.lastPrice = 1.0000 + (Math.random() * 0.5); // Semente de preço aleatória para o novo ativo
-        this.generateData(); // Gera novo histórico
+    changeAsset(asset) {
+        console.log("Gráfico para:", asset);
+        this.lastPrice = 1.000 + Math.random();
+        if (this.series) this.generateData();
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.marketChart = new MarketChart('main-chart');
-});
+document.addEventListener('DOMContentLoaded', () => { window.marketChart = new MarketChart('main-chart'); });

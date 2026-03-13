@@ -59,28 +59,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const clockBroker = document.getElementById('broker-clock');
 
     const updateTime = () => {
-        const now = new Date();
-        
-        // Atualiza o relógio do Ponto de Entrada (Local - de onde o trader opera)
-        if (clockLocal) {
-            clockLocal.innerText = now.toLocaleTimeString('pt-BR');
-        }
+        try {
+            const now = new Date();
+            
+            // Atualiza o relógio do Ponto de Entrada (Local)
+            if (clockLocal) {
+                clockLocal.innerText = now.toLocaleTimeString('pt-BR');
+            }
 
-        // Atualiza o relógio de Operação (Sincronizado com a Corretora padrão BRT)
-        if (clockBroker) {
-            clockBroker.innerText = now.toLocaleTimeString('pt-BR');
-        }
-        
-        // Atualiza a matemática das horas globais a cada minuto (quando os segundos zeram)
-        if (now.getSeconds() === 0) {
-            updateMarketHours();
+            // Atualiza o relógio de Operação (Corretora)
+            if (clockBroker) {
+                clockBroker.innerText = now.toLocaleTimeString('pt-BR');
+            }
+            
+            // Atualiza a matemática das horas globais a cada minuto
+            if (now.getSeconds() === 0) {
+                updateMarketHours();
+            }
+        } catch (e) {
+            console.error("Erro ao atualizar relógio:", e);
         }
     };
     
     // Roda no boot
-    updateMarketHours();
-    setInterval(updateTime, 1000);
-    updateTime();
+    try {
+        updateMarketHours();
+        setInterval(updateTime, 1000);
+        updateTime();
+    } catch (e) {
+        console.error("Erro no boot do AppUI:", e);
+    }
 
     // 2. Navegação Interativa
     const links = document.querySelectorAll('.nav-link');

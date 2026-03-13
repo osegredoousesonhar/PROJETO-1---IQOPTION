@@ -89,6 +89,7 @@
                                 <span id="label-adm-winrate" style="font-size: 18px; color: var(--accent); font-weight: 900;">IA MODO: 94%</span>
                                 <span style="font-size: 11px; color: var(--text-dim);">Máx: 98%</span>
                             </div>
+                            <button onclick="window.engine.resetData()" class="p-btn" style="width: 100%; margin-top: 30px; border-color: var(--red); color: var(--red); opacity: 0.6;">RESETAR SISTEMA (DEBUG)</button>
                         </div>
                     </div>
                 </div>
@@ -98,11 +99,11 @@
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 35px;">
                         <div class="stat-box" style="padding: 25px; border: 1px solid var(--border); background: rgba(255,184,0,0.03);">
                             <p style="font-size: 10px; color: var(--text-dim); font-weight: 800; margin-bottom: 10px;">FATURAMENTO TOTAL</p>
-                            <h4 style="font-size: 26px; color: var(--accent); font-family: 'Outfit'; font-weight: 900;">R$ 14.280,00</h4>
+                            <h4 id="business-total-revenue" style="font-size: 26px; color: var(--accent); font-family: 'Outfit'; font-weight: 900;">R$ 14.280,00</h4>
                         </div>
                         <div class="stat-box" style="padding: 25px; border: 1px solid var(--border);">
                             <p style="font-size: 10px; color: var(--text-dim); font-weight: 800; margin-bottom: 10px;">VENDAS HOJE</p>
-                            <h4 style="font-size: 26px; color: var(--green); font-family: 'Outfit'; font-weight: 900;">12 ORDENS</h4>
+                            <h4 id="business-sales-today" style="font-size: 26px; color: var(--green); font-family: 'Outfit'; font-weight: 900;">12 ORDENS</h4>
                         </div>
                         <div class="stat-box" style="padding: 25px; border: 1px solid var(--border);">
                             <p style="font-size: 10px; color: var(--text-dim); font-weight: 800; margin-bottom: 10px;">ATIVOS VIP / PRO</p>
