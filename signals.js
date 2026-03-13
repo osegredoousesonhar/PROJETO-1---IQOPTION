@@ -316,8 +316,10 @@ class SignalEngine {
         `;
         
         document.getElementById('current-asset').innerText = s.pair;
-        if (window.marketChart) window.marketChart.    generateRadar() {
-        const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/CAD', 'EUR/GBP', 'USD/CHF', 'EUR/AUD', 'GBP/AUD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)'];
+        if (window.marketChart && typeof window.marketChart.changeAsset === 'function') {
+            window.marketChart.changeAsset(s.pair);
+        }
+    }
         
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
