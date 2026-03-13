@@ -353,7 +353,7 @@ body {
 
 .radar-box {
     flex: 0 0 auto;
-    width: 650px; /* Largura ideal para os 3 cards + gaps */
+    width: 900px; /* Aumentado para comportar 4 cards de 210px + gaps */
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -444,6 +444,18 @@ body {
     align-items: center;
     margin-bottom: 5px;
 }
+
+.mini-status-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.mini-status-box.call { color: var(--green); background: rgba(0, 230, 118, 0.05); }
+.mini-status-box.put { color: var(--red); background: rgba(255, 82, 82, 0.05); }
 
 /* OPERATIONAL TERMINAL (RIGHT) */
 .terminal { 

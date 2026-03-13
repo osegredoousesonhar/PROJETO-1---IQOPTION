@@ -250,9 +250,9 @@ class SignalEngine {
     }
 
     generateRadar() {
-        const pairs = ['USD/CHF', 'EUR/AUD', 'GBP/AUD', 'EUR/USD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)'];
+        const pairs = ['USD/CHF', 'EUR/AUD', 'GBP/AUD', 'EUR/USD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)', 'BTC/USD', 'ETH/USD'];
         this.radarSignals = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
             const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
             this.radarSignals.push({
@@ -270,21 +270,28 @@ class SignalEngine {
         const list = document.getElementById('radar-list');
         if (!list) return;
         list.innerHTML = this.radarSignals.map((s, idx) => `
-            <div class="radar-hero-card" data-index="${idx}" style="cursor: pointer;">
-                <div class="hero-signal-header" style="pointer-events: none;">
-                    <span class="hero-pair" style="font-size: 18px;">${s.pair}</span>
-                    <span class="hero-timeframe" style="font-size: 9px;">IA SCALPER ${s.timeframe}</span>
+            <div class="radar-hero-card" data-index="${idx}">
+                <div class="hero-signal-header">
+                    <span class="hero-pair" style="font-size: 16px; margin-bottom: 2px;">${s.pair}</span>
+                    <span class="hero-timeframe" style="font-size: 9px;">${s.timeframe} ANALYTICS</span>
                 </div>
-                <div class="${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 8px 0; pointer-events: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px;">
-                    <span style="font-size: 12px; font-weight: 800;">${s.type}</span>
+                
+                <div class="mini-status-box ${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 10px 0; padding: 10px; border-radius: 12px; border: 1px solid currentColor;">
+                    <i class="fas fa-arrow-${s.type === 'COMPRA' ? 'up' : 'down'}" style="font-size: 14px;"></i>
+                    <span style="font-size: 12px; font-weight: 900; margin-left: 5px;">${s.type}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; pointer-events: none;">
-                    <span id="radar-timer-${idx}" class="live-timer" style="font-size: 14px; color: var(--accent);">--:--</span>
-                    <p class="entry-badge" style="font-size: 9px; margin: 0;">${s.entry.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</p>
+
+                <div style="margin-top: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; margin-bottom: 5px; color: var(--text-dim);">
+                        <span>CONFIANÇA IA</span>
+                        <span style="color: var(--accent);">${s.prob}%</span>
+                    </div>
+                    <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                        <div style="height: 100%; width: ${s.prob}%; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow);"></div>
+                    </div>
                 </div>
-                <div style="margin-top: 10px; pointer-events: none;">
-                    <button class="confirm-btn" style="padding: 10px; font-size: 11px;">SELECIONAR</button>
-                </div>
+
+                <button class="confirm-btn" style="width: 100%; padding: 12px; font-size: 10px; height: auto; border-radius: 12px; letter-spacing: 1px;">SELECIONAR SINAL</button>
             </div>
         `).join('');
     }
