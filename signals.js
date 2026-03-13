@@ -128,13 +128,15 @@ class SignalEngine {
             const tradeBtn = e.target.closest('#btn-confirm-trade');
             if (tradeBtn) { this.confirmTrade(); return; }
 
+            const pendingBtn = e.target.closest('button[onclick*="confirmPendingTrade"]');
+            if (pendingBtn) { this.confirmPendingTrade(); return; }
+
             const radarCard = e.target.closest('.radar-hero-card');
             if (radarCard) {
-                const idx = radarCard.getAttribute('data-index');
-                if (idx !== null) {
-                    console.log("Sinal Radar Selecionado:", idx);
-                    this.selectRadarSignal(parseInt(idx));
-                }
+                // O novo sistema usa onclick direto no card, mas mantemos o listener por segurança
+                // ou removemos se o onclick no HTML for suficiente.
+                // Como adicionei onclick="window.engine.selectRadarSignal()" no JS, 
+                // este listener pode ser mais genérico ou removido.
             }
         });
 
