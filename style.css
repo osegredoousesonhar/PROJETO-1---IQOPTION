@@ -412,20 +412,21 @@ body {
 .news-text { font-size: 12px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
 .news-time { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: var(--text-dim); }
 
+.radar-hero-card {
+    background: linear-gradient(145deg, #1a1f35, #0a0c14);
     border-radius: 16px;
     width: 100%; 
-    min-height: 350px; /* Aumentado em 40% para simetria premium */
+    min-height: 450px; /* Aumentado em 50% para layout premium e bem distribuído */
     min-width: 0;
     flex-shrink: 1;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
     position: relative;
-    padding: 25px 15px; /* Mais respiro */
+    padding: 30px 20px; /* Mais respiro para informações */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    position: relative;
     overflow: hidden;
 }
 
