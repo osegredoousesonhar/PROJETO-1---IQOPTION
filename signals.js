@@ -16,11 +16,11 @@ class SignalEngine {
         this.iaStats = { wins: 0, losses: 0 };
         this.globalIndications = [];
         this.pendingEvaluations = []; 
-        this.initialBalance = 265.65;
-        this.balance = 265.65;
+        this.initialBalance = 258.40;
+        this.balance = 258.40;
         
         this.iaStats = { wins: 0, losses: 0 };
-        this.dailyInitialBalance = 265.65;
+        this.dailyInitialBalance = 258.40;
         this.saveData();
 
         this.pendingTrades = [];
