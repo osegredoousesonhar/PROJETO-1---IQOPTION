@@ -142,7 +142,6 @@ class SignalEngine {
                 const resTime = sig.resolutionTime || (entryDate.getTime() + 90000);
                 if (now > resTime) {
                     const isWin = Math.random() < (this.targetWinRate / 100);
-                    const isWin = Math.random() < (this.targetWinRate / 100);
                     if (isWin) this.iaStats.wins++; else this.iaStats.losses++;
                     this.history.unshift({ pair: sig.pair, type: sig.type, win: isWin, confirmed: false, timestamp: new Date(resTime).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) });
                     if (this.history.length > 10) this.history.pop();
