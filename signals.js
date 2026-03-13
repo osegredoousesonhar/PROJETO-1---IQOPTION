@@ -8,13 +8,13 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        // Força Reset para R$ 262,78 (v5.0 - RESET TOTAL DEFINITIVO)
-        const currentVersion = 'v5.0_final_reset_v2';
+        // Força Reset para R$ 262,78 (v5.1 - MARKET REALISM)
+        const currentVersion = 'v5.1_market_realism';
         const lastAppliedVersion = localStorage.getItem('iq_system_version');
 
         if (lastAppliedVersion !== currentVersion) {
-            console.log("!!! APLICANDO RESET TOTAL V5.0 !!!");
-            localStorage.clear(); // Limpa tudo para garantir
+            console.log("!!! APLICANDO RESET REALISMO V5.1 !!!");
+            localStorage.clear();
             
             this.balance = 262.78;
             this.initialBalance = 262.78;
@@ -24,8 +24,6 @@ class SignalEngine {
             this.stats = { wins: 0, losses: 0, streak: 0 };
             
             localStorage.setItem('iq_system_version', currentVersion);
-            localStorage.setItem('iq_balance', '262.78');
-            localStorage.setItem('iq_daily_balance', '262.78');
             this.saveData();
         } else {
             this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
@@ -36,6 +34,7 @@ class SignalEngine {
             this.initialBalance = 262.78;
         }
 
+        this.marketPrices = {}; // Simulação de preços reais
         this.pendingTrades = [];
         this.currentTrade = null;
         this.audioCtx = null;
@@ -136,26 +135,8 @@ class SignalEngine {
 
     tick() {
         const now = Date.now();
+        this.updateMarketSimulation();
         
-        // 1. Processamento de Sinais de Fundo
-        if (this.globalIndications) {
-            this.globalIndications = this.globalIndications.filter(sig => {
-                const entryDate = sig.entry instanceof Date ? sig.entry : new Date(sig.entry);
-                const resTime = sig.resolutionTime || (entryDate.getTime() + 90000);
-                if (now > resTime) {
-                    const isWin = Math.random() < (this.targetWinRate / 100);
-                    if (isWin) this.iaStats.wins++; else this.iaStats.losses++;
-                    this.history.unshift({ pair: sig.pair, type: sig.type, win: isWin, confirmed: false, timestamp: new Date(resTime).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) });
-                    if (this.history.length > 10) this.history.pop();
-                    this.updateBalanceUI();
-                    this.saveData();
-                    this.renderHistory();
-                    return false;
-                }
-                return true;
-            });
-        }
-
         // 2. Atualização do Cronômetro de Entrada
         if (this.activeSignal) {
             const entryDate = this.activeSignal.entry instanceof Date ? this.activeSignal.entry : new Date(this.activeSignal.entry);
@@ -168,13 +149,11 @@ class SignalEngine {
                 if (timerEl) {
                     const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                     timerEl.innerText = `FALTAM ${timeStr} PARA ENTRADA`;
-                    // Verde vibrante (#00e676) para tempo > 30s, Vermelho para o cutoff
                     timerEl.style.color = diff <= 20 ? '#ff5252' : '#00e676';
                     timerEl.style.fontSize = '24px';
                     timerEl.style.fontWeight = '900';
                 }
             } else {
-                // Entrada Iniciada - Mover para Pendentes (Descer para apuração)
                 if (timerEl) {
                     timerEl.innerText = "ENTRADA AGORA!";
                     timerEl.style.color = "#00e676"; 
@@ -182,6 +161,7 @@ class SignalEngine {
                 
                 if (!this.activeSignal.moving) {
                     this.activeSignal.moving = true;
+                    this.activeSignal.entryPrice = this.marketPrices[this.activeSignal.pair.split(' ')[0]] || 1.1234;
                     this.playSound('win'); 
                     setTimeout(() => {
                         this.moveToPending(this.activeSignal);
@@ -196,13 +176,13 @@ class SignalEngine {
             this.pendingTrades = this.pendingTrades.filter(trade => {
                 const diff = Math.floor((trade.resTime - now) / 1000);
                 
-                // Se o sinal não foi confirmado e faltam menos de 20s, trava a confirmação
                 if (!trade.confirmed && diff <= 20) {
                     trade.lockConfirmation = true;
                 }
 
                 if (diff <= 0) {
-                    const isWin = Math.random() < (this.targetWinRate / 100);
+                    const finalPrice = this.marketPrices[trade.pair.split(' ')[0]] || trade.entryPrice;
+                    const isWin = trade.type === 'COMPRA' ? (finalPrice > trade.entryPrice) : (finalPrice < trade.entryPrice);
                     this.resolveTrade(trade.id, isWin ? 'win' : 'loss', true);
                     return false;
                 }
@@ -213,6 +193,18 @@ class SignalEngine {
 
         this.checkMidnightReset();
         this.updateRadarTimers(now);
+    }
+
+    updateMarketSimulation() {
+        const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/CAD', 'EUR/GBP', 'USD/CHF', 'EUR/AUD', 'GBP/AUD', 'NZD/USD', 'EUR/JPY', 'GBP/JPY', 'ETH/USD'];
+        pairs.forEach(p => {
+            if (!this.marketPrices[p]) {
+                this.marketPrices[p] = p.includes('JPY') ? 150.45 : (p.includes('USD') && !p.startsWith('USD') ? 1.0850 : 0.8540);
+            }
+            // Simulação de volatilidade (Caminhada aleatória)
+            const vol = p.includes('ETH') ? 0.5 : 0.00015;
+            this.marketPrices[p] += (Math.random() - 0.5) * vol;
+        });
     }
 
     checkMidnightReset() {
@@ -254,10 +246,10 @@ class SignalEngine {
     }
 
     generateSignal() {
-        const basePairs = ['EUR/USD', 'GBP/JPY', 'AUD/CAD', 'USD/JPY', 'EUR/GBP'];
+        const basePairs = ['EUR/USD', 'GBP/USD', 'AUD/CAD', 'USD/JPY', 'EUR/GBP'];
         const isOTC = Math.random() > 0.4;
         const pair = basePairs[Math.floor(Math.random() * basePairs.length)] + (isOTC ? ' (OTC)' : '');
-        const entryTime = this.calculateEntryTime('M1', 2); // Mais rápido para teste
+        const entryTime = this.calculateEntryTime('M1', 2);
         const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
         
         this.activeSignal = {
@@ -265,15 +257,12 @@ class SignalEngine {
             pair: pair,
             type: Math.random() > 0.5 ? 'COMPRA' : 'VENDA',
             timeframe: timeframe,
-            prob: Math.floor(Math.random() * 12 + 86),
+            prob: Math.floor(Math.random() * 12 + 82), // Probabilidade visual apenas
             entry: entryTime,
             duration: timeframe === 'M5' ? 300000 : 60000 
         };
 
         this.renderPrimary();
-        
-        // Contabiliza estatística de indicações geradas no Principal
-        this.stats.streak++; // Apenas marcador interno para saber que houve movimentação
         this.saveData();
     }
 
@@ -549,10 +538,15 @@ class SignalEngine {
         const list = document.getElementById('history-list');
         if (!list) return;
 
-        // Mostrar apenas as 10 últimas ordens confirmadas (Execução de Sinal)
+        // Mostrar RIGOROSAMENTE as 10 últimas ordens confirmadas (Execução Real)
         const filteredHistory = this.history
             .filter(item => item.confirmed === true)
             .slice(0, 10);
+
+        if (filteredHistory.length === 0) {
+            list.innerHTML = '<p style="font-size: 11px; opacity: 0.3; text-align: center; padding: 20px;">Nenhuma operação real recente.</p>';
+            return;
+        }
 
         list.innerHTML = filteredHistory.map(item => `
             <div class="history-card animate-slide">
@@ -562,8 +556,8 @@ class SignalEngine {
                 </div>
                 <div class="h-card-info">
                     <span>${item.h || item.timestamp}</span>
-                    <span style="color: ${item.confirmed ? 'var(--green)' : 'var(--text-dim)'}">
-                        ${item.confirmed ? 'INVESTIDO: R$ ' + item.amount.toFixed(2) : 'OBSERVAÇÃO'}
+                    <span style="color: var(--green); font-weight: 800;">
+                        INVESTIDO: R$ ${item.amount.toFixed(2)}
                     </span>
                 </div>
             </div>
