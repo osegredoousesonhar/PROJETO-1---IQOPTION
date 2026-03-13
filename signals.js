@@ -559,12 +559,12 @@ class SignalEngine {
             <div class="history-card animate-slide">
                 <div class="h-card-top">
                     <span class="history-asset">${item.pair}</span>
-                    <span class="history-res ${item.win ? 'win' : 'loss'}">${item.skip ? 'SKIP' : (item.win ? 'WIN' : 'LOSS')}</span>
+                    <span class="history-res ${item.win ? 'win' : 'loss'}">${item.skip ? 'CANCELADO' : (item.win ? 'VITÓRIA' : 'DERROTA')}</span>
                 </div>
                 <div class="h-card-info">
                     <span>${item.h || item.timestamp}</span>
                     <span style="color: ${item.confirmed ? 'var(--green)' : 'var(--text-dim)'}">
-                        ${item.confirmed ? 'INVEST: R$ ' + item.amount.toFixed(2) : 'OBSERVAÇÃO'}
+                        ${item.confirmed ? 'INVESTIDO: R$ ' + item.amount.toFixed(2) : 'OBSERVAÇÃO'}
                     </span>
                 </div>
             </div>
