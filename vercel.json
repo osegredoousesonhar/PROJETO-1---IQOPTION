@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "iq-signals-pro",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

@@ -1,3 +1,4 @@
+```json
 {
   "name": "iq-signals-pro",
   "version": "0.1.0",
@@ -34,3 +35,4 @@
     "typescript": "^5"
   }
 }
+```
