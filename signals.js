@@ -17,10 +17,17 @@ class SignalEngine {
         this.initialBalance = 265.65;
         this.balance = parseFloat(localStorage.getItem('iq_balance'));
         
-        // Sincronização forçada para o novo valor solicitado pelo usuário
-        if (isNaN(this.balance) || this.balance === 235.62 || this.balance === 230.00) {
+        // Marcador de Versão para Sincronização de Saldo (Força 265.65 uma vez)
+        const balanceVersion = localStorage.getItem('iq_balance_v_set');
+        if (balanceVersion !== '265.65') {
             this.balance = 265.65;
+            this.dailyInitialBalance = 265.65;
+            this.iaStats = { wins: 0, losses: 0 };
             localStorage.setItem('iq_balance', this.balance);
+            localStorage.setItem('iq_daily_balance', this.balance);
+            localStorage.setItem('iq_ia_stats', JSON.stringify(this.iaStats));
+            localStorage.setItem('iq_balance_v_set', '265.65'); 
+            localStorage.setItem('iq_reset_date', new Date().toLocaleDateString('pt-BR'));
         }
 
         const lastReset = localStorage.getItem('iq_reset_date');
