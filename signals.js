@@ -8,15 +8,15 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        // Força Reset para R$ 258,40 (v4.7 - Reset Forçado)
-        const currentVersion = 'v4.7_forced';
+        // Força Reset para R$ 262,78 (v4.8 - Teste 30min)
+        const currentVersion = 'v4.8_test_30min';
         const lastAppliedVersion = localStorage.getItem('iq_system_version');
 
         if (lastAppliedVersion !== currentVersion) {
             console.log("Aplicando Reset de Versão: " + currentVersion);
-            this.balance = 258.40;
-            this.initialBalance = 258.40;
-            this.dailyInitialBalance = 258.40;
+            this.balance = 262.78;
+            this.initialBalance = 262.78;
+            this.dailyInitialBalance = 262.78;
             this.history = [];
             this.iaStats = { wins: 0, losses: 0 };
             this.stats = { wins: 0, losses: 0, streak: 0 };
@@ -27,9 +27,9 @@ class SignalEngine {
             this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
             this.stats = JSON.parse(localStorage.getItem('iq_stats')) || { wins: 0, losses: 0, streak: 0 };
             this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
-            this.balance = parseFloat(localStorage.getItem('iq_balance')) || 258.40;
-            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 258.40;
-            this.initialBalance = 258.40;
+            this.balance = parseFloat(localStorage.getItem('iq_balance')) || 262.78;
+            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 262.78;
+            this.initialBalance = 262.78;
         }
 
         this.pendingTrades = [];
