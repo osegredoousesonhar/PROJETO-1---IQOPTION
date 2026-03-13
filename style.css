@@ -625,3 +625,15 @@ body {
 }
 
 .animate-slide { animation: fadeIn 0.5s ease-out forwards; }
+
+/* Destaques de Execução */
+.timer-highlight {
+    color: #00e676 !important; /* Verde vibrante */
+    font-size: 24px !important;
+    text-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+}
+
+.entry-time-highlight {
+    color: #ffb800 !important; /* Amarelo premium */
+    font-weight: 800;
+}
