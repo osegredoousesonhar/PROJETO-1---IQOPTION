@@ -16,9 +16,9 @@ class SignalEngine {
             console.log("!!! APLICANDO RESET REALISMO V5.1 !!!");
             localStorage.clear();
             
-            this.balance = 262.78;
-            this.initialBalance = 262.78;
-            this.dailyInitialBalance = 262.78;
+            this.balance = 130.00;
+            this.initialBalance = 130.00;
+            this.dailyInitialBalance = 130.00;
             this.history = [];
             this.iaStats = { wins: 0, losses: 0 };
             this.stats = { wins: 0, losses: 0, streak: 0 };
@@ -29,9 +29,9 @@ class SignalEngine {
             this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
             this.stats = JSON.parse(localStorage.getItem('iq_stats')) || { wins: 0, losses: 0, streak: 0 };
             this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
-            this.balance = parseFloat(localStorage.getItem('iq_balance')) || 262.78;
-            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 262.78;
-            this.initialBalance = 262.78;
+            this.balance = parseFloat(localStorage.getItem('iq_balance')) || 130.00;
+            this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || 130.00;
+            this.initialBalance = 130.00;
         }
 
         this.marketPrices = {}; // Simulação de preços reais
@@ -311,13 +311,13 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
 
-        // Top 5 M1
-        for (let i = 0; i < 5; i++) {
+        // Top 3 M1
+        for (let i = 0; i < 3; i++) {
             this.radarSignalsM1.push(this.createRadarSignal(pairs[i] || pairs[0], 'M1', (i + 1) * 2));
         }
 
-        // Top 5 M5
-        for (let i = 0; i < 5; i++) {
+        // Top 3 M5
+        for (let i = 0; i < 3; i++) {
             this.radarSignalsM5.push(this.createRadarSignal(pairs[pairs.length - 1 - i] || pairs[0], 'M5', (i + 1) * 5));
         }
 
