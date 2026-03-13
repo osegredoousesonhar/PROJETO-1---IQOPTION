@@ -35,12 +35,9 @@ const ASSETS_TO_WATCH = ["EUR/USD", "GBP/JPY", "BTC/USD", "USD/JPY", "AUD/USD", 
 
 export function TradeProvider({ children }: { children: ReactNode }) {
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [balance, setBalance] = useState(12450.00);
+  const [balance, setBalance] = useState(130.00);
   const [autoSniperActive, setAutoSniperActive] = useState(false);
-  const [signals, setSignals] = useState<Signal[]>([
-    { id: "init-1", asset: "EUR/USD", type: "CALL", entryTime: Date.now(), expiration: "5m", probability: 88, payout: 87, strategy: "RSI Reversal", confluences: ["RSI < 30"], status: "PENDING" },
-    { id: "init-2", asset: "BTC/USD", type: "PUT", entryTime: Date.now(), expiration: "5m", probability: 94, payout: 82, strategy: "BB Breakout", confluences: ["Price > BB Upper"], status: "PENDING" }
-  ]);
+  const [signals, setSignals] = useState<Signal[]>([]);
   const [lastScan, setLastScan] = useState<Date>(new Date());
   const [timeframe, setTimeframe] = useState("5m");
   const [avgPayout, setAvgPayout] = useState(85);
