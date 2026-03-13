@@ -1,0 +1,10 @@
+# Git
+.git/
+
+# User-specific files
+.DS_Store
+Thumbs.db
+
+# OS generated files
+ehthumbs.db
+Desktop.ini
