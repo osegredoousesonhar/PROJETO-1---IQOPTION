@@ -23,12 +23,15 @@ class SignalEngine {
             localStorage.setItem('iq_balance', this.balance);
         }
 
-        const dayStart = localStorage.getItem('iq_daily_timestamp');
-        const now = Date.now();
-        if (!dayStart || (now - parseInt(dayStart)) > 86400000) {
+        const lastReset = localStorage.getItem('iq_reset_date');
+        const todayStr = new Date().toLocaleDateString('pt-BR');
+        
+        if (lastReset !== todayStr) {
+            this.iaStats = { wins: 0, losses: 0 };
             this.dailyInitialBalance = this.balance;
-            localStorage.setItem('iq_daily_balance', this.balance);
-            localStorage.setItem('iq_daily_timestamp', now);
+            localStorage.setItem('iq_reset_date', todayStr);
+            localStorage.setItem('iq_ia_stats', JSON.stringify(this.iaStats));
+            localStorage.setItem('iq_daily_balance', this.dailyInitialBalance);
         } else {
             this.dailyInitialBalance = parseFloat(localStorage.getItem('iq_daily_balance')) || this.balance;
         }
@@ -139,9 +142,13 @@ class SignalEngine {
                 const resTime = sig.resolutionTime || (entryDate.getTime() + 90000);
                 if (now > resTime) {
                     const isWin = Math.random() < (this.targetWinRate / 100);
+                    const isWin = Math.random() < (this.targetWinRate / 100);
                     if (isWin) this.iaStats.wins++; else this.iaStats.losses++;
+                    this.history.unshift({ pair: sig.pair, type: sig.type, win: isWin, confirmed: false, timestamp: new Date(resTime).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) });
+                    if (this.history.length > 10) this.history.pop();
                     this.updateBalanceUI();
                     this.saveData();
+                    this.renderHistory();
                     return false;
                 }
                 return true;
@@ -183,7 +190,21 @@ class SignalEngine {
             }
         }
 
+        this.checkMidnightReset();
         this.updateRadarTimers(now);
+    }
+
+    checkMidnightReset() {
+        const todayStr = new Date().toLocaleDateString('pt-BR');
+        const lastReset = localStorage.getItem('iq_reset_date');
+        if (lastReset !== todayStr) {
+            console.log("Reiniciando estatísticas diárias (00:00)...");
+            this.iaStats = { wins: 0, losses: 0 };
+            this.dailyInitialBalance = this.balance;
+            localStorage.setItem('iq_reset_date', todayStr);
+            this.saveData();
+            this.updateBalanceUI();
+        }
     }
 
     updateRadarTimers(now) {
@@ -263,9 +284,9 @@ class SignalEngine {
     }
 
     generateRadar() {
-        const pairs = ['USD/CHF', 'EUR/AUD', 'GBP/AUD', 'EUR/USD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)', 'BTC/USD', 'ETH/USD'];
+        const pairs = ['USD/CHF', 'EUR/AUD', 'GBP/AUD', 'EUR/USD', 'NZD/USD (OTC)', 'EUR/JPY (OTC)', 'BTC/USD', 'ETH/USD', 'GBP/USD', 'AUD/JPY'];
         this.radarSignals = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 5; i++) {
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
             const timeframe = Math.random() > 0.5 ? 'M1' : 'M5';
             this.radarSignals.push({
@@ -346,7 +367,13 @@ class SignalEngine {
     }
 
     moveToPending(sig) {
-        this.pendingTrades = [{ ...sig, amount: this.currentTrade ? this.currentTrade.amount : 0, confirmed: !!this.currentTrade, timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) }];
+        const tradeData = this.currentTrade || { amount: 0, confirmed: false };
+        this.pendingTrades = [{ 
+            ...sig, 
+            amount: tradeData.amount, 
+            confirmed: tradeData.confirmed, 
+            timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) 
+        }];
         this.currentTrade = null;
         this.renderPending();
     }
@@ -354,13 +381,33 @@ class SignalEngine {
     resolveTrade(id, result) {
         const t = this.pendingTrades[0];
         if (!t) return;
+        
+        const isWin = result === 'win';
+        const isSkip = result === 'skip';
+
+        // Atualiza SALDO apenas se foi uma entrada confirmada
         if (t.confirmed) {
-            if (result === 'win') this.balance += t.amount * 1.85;
-            else if (result === 'skip') this.balance += t.amount;
+            if (isWin) this.balance += t.amount * 1.85;
+            else if (isSkip) this.balance += t.amount;
+            // Se for loss, o valor já foi debitado no confirmTrade()
         }
-        this.iaStats[result === 'win' ? 'wins' : 'losses']++;
-        this.history.unshift({ ...t, win: result === 'win', h: t.timestamp });
-        if (this.history.length > 5) this.history.pop();
+
+        // Atualiza ESTATÍSTICA DIÁRIA sempre (independente de confirmação)
+        if (!isSkip) {
+            this.iaStats[isWin ? 'wins' : 'losses']++;
+        }
+
+        // Adiciona ao Histórico em formato detalhado
+        this.history.unshift({ 
+            ...t, 
+            win: isWin, 
+            skip: isSkip,
+            h: t.timestamp,
+            profit: t.confirmed && isWin ? (t.amount * 0.85) : 0
+        });
+        
+        if (this.history.length > 10) this.history.pop();
+        
         this.pendingTrades = [];
         this.updateBalanceUI();
         this.saveData();
@@ -392,9 +439,17 @@ class SignalEngine {
         const list = document.getElementById('history-list');
         if (!list) return;
         list.innerHTML = this.history.map(item => `
-            <div class="history-item">
-                <span class="history-asset">${item.pair}</span>
-                <span class="history-res ${item.win ? 'win' : 'loss'}">${item.win ? 'WIN' : 'LOSS'}</span>
+            <div class="history-card animate-slide">
+                <div class="h-card-top">
+                    <span class="history-asset">${item.pair}</span>
+                    <span class="history-res ${item.win ? 'win' : 'loss'}">${item.skip ? 'SKIP' : (item.win ? 'WIN' : 'LOSS')}</span>
+                </div>
+                <div class="h-card-info">
+                    <span>${item.h || item.timestamp}</span>
+                    <span style="color: ${item.confirmed ? 'var(--green)' : 'var(--text-dim)'}">
+                        ${item.confirmed ? 'INVEST: R$ ' + item.amount.toFixed(2) : 'OBSERVAÇÃO'}
+                    </span>
+                </div>
             </div>
         `).join('');
     }
@@ -402,10 +457,29 @@ class SignalEngine {
     updateBalanceUI() {
         const b = document.getElementById('user-balance');
         if (b) b.innerText = `R$ ${this.balance.toFixed(2)}`;
+        
         const w = document.getElementById('stat-wins');
         const l = document.getElementById('stat-losses');
         if (w) w.innerText = this.iaStats.wins;
         if (l) l.innerText = this.iaStats.losses;
+
+        // Cálculo de Assertividade
+        const total = this.iaStats.wins + this.iaStats.losses;
+        const acc = total > 0 ? (this.iaStats.wins / total * 100).toFixed(0) : 0;
+        const accEl = document.getElementById('stat-accuracy');
+        if (accEl) accEl.innerText = `${acc}%`;
+
+        // Cálculo de Crescimento Diário
+        const dailyGrowth = ((this.balance - this.dailyInitialBalance) / this.dailyInitialBalance * 100).toFixed(2);
+        const dgEl = document.getElementById('daily-growth');
+        const bgEl = document.getElementById('balance-growth');
+        if (dgEl) dgEl.innerText = `${dailyGrowth > 0 ? '+' : ''}${dailyGrowth}%`;
+        if (bgEl) bgEl.innerText = `${dailyGrowth > 0 ? '+' : ''}${dailyGrowth}%`;
+
+        // Crescimento Total
+        const totalGrowth = ((this.balance - this.initialBalance) / this.initialBalance * 100).toFixed(2);
+        const tgEl = document.getElementById('total-growth');
+        if (tgEl) tgEl.innerText = `${totalGrowth > 0 ? '+' : ''}${totalGrowth}%`;
 
         // Atualiza a aba Business também
         this.updateBusinessUI();

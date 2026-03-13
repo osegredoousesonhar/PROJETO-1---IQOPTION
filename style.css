@@ -418,8 +418,7 @@ body {
     border: 1px solid rgba(255, 184, 0, 0.2);
     border-top: 4px solid var(--accent); /* Destaque no topo */
     border-radius: 16px;
-    padding: 20px;
-    width: 250px; /* Um pouco mais largo para beleza */
+    width: 215px; /* Reduzido para caber 5 cards */
     flex-shrink: 0;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -562,8 +561,39 @@ body {
     align-items: center;
 }
 
-.history-asset { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800; }
-.history-res { font-weight: 900; font-size: 13px; }
+.history-asset { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: white; }
+.history-res { font-weight: 900; font-size: 11px; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+.history-res.win { background: rgba(0, 230, 118, 0.1); color: var(--green); }
+.history-res.loss { background: rgba(255, 82, 82, 0.1); color: var(--red); }
+
+.history-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.history-card:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.h-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.h-card-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 700;
+}
 
 /* ACCOUNT CARD */
 .account-card {
