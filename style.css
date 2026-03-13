@@ -341,26 +341,23 @@ body {
 /* RADAR & NEWS FLEX SYSTEM */
 .radar-flex-container {
     display: flex;
-    gap: 15px;
+    flex-direction: column; /* Stack vertical */
+    gap: 25px;
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
     height: 100%;
-    align-items: flex-start;
 }
 
 .radar-box {
-    flex: 0 0 auto;
-    width: 900px; /* Aumentado para comportar 4 cards de 210px + gaps */
+    width: 100%;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .news-box {
-    flex: 1; /* Ocupa o resto */
+    width: 100%;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .limited-radar {
@@ -417,16 +414,30 @@ body {
 .news-time { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: var(--text-dim); }
 
 .radar-hero-card {
-    background: linear-gradient(145deg, #161b2b, #0a0c14);
-    border: 2px solid rgba(255, 184, 0, 0.4);
+    background: linear-gradient(145deg, #1a1f35, #0a0c14);
+    border: 1px solid rgba(255, 184, 0, 0.2);
+    border-top: 4px solid var(--accent); /* Destaque no topo */
     border-radius: 16px;
-    padding: 15px;
-    width: 210px; /* Compactando os cards do radar para caberem lado a lado */
+    padding: 20px;
+    width: 250px; /* Um pouco mais largo para beleza */
     flex-shrink: 0;
     cursor: pointer;
-    transition: all 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.radar-hero-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255, 184, 0, 0.05) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .radar-hero-card:hover {

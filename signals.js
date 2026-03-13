@@ -270,28 +270,42 @@ class SignalEngine {
         const list = document.getElementById('radar-list');
         if (!list) return;
         list.innerHTML = this.radarSignals.map((s, idx) => `
-            <div class="radar-hero-card" data-index="${idx}">
-                <div class="hero-signal-header">
-                    <span class="hero-pair" style="font-size: 16px; margin-bottom: 2px;">${s.pair}</span>
-                    <span class="hero-timeframe" style="font-size: 9px;">${s.timeframe} ANALYTICS</span>
+            <div class="radar-hero-card animate-slide" data-index="${idx}">
+                <!-- Timeframe Badge -->
+                <div style="position: absolute; top: 12px; right: 12px; background: ${s.timeframe === 'M1' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 184, 0, 0.2)'}; 
+                            color: ${s.timeframe === 'M1' ? '#818cf8' : 'var(--accent)'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; 
+                            border: 1px solid currentColor;">
+                    ${s.timeframe} ANALYTICS
+                </div>
+
+                <div class="hero-signal-header" style="margin-top: 10px;">
+                    <span class="hero-pair" style="font-size: 18px; margin-bottom: 2px;">${s.pair}</span>
+                    <span style="font-size: 10px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                        Entrada: ${s.entry.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}
+                    </span>
                 </div>
                 
-                <div class="mini-status-box ${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 10px 0; padding: 10px; border-radius: 12px; border: 1px solid currentColor;">
-                    <i class="fas fa-arrow-${s.type === 'COMPRA' ? 'up' : 'down'}" style="font-size: 14px;"></i>
-                    <span style="font-size: 12px; font-weight: 900; margin-left: 5px;">${s.type}</span>
+                <div class="mini-status-box ${s.type === 'COMPRA' ? 'call' : 'put'}" style="margin: 15px 0; padding: 12px; border-radius: 12px; border: 1px solid currentColor; background: rgba(255,255,255,0.02);">
+                    <i class="fas fa-arrow-${s.type === 'COMPRA' ? 'up' : 'down'}" style="font-size: 18px;"></i>
+                    <span style="font-size: 14px; font-weight: 900; margin-left: 8px; letter-spacing: 1px;">${s.type}</span>
                 </div>
 
-                <div style="margin-top: 10px; margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; margin-bottom: 5px; color: var(--text-dim);">
-                        <span>CONFIANÇA IA</span>
+                <div style="margin-top: 15px; margin-bottom: 20px; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 6px; color: var(--text-dim);">
+                        <span>SINAL IA AGUARDANDO</span>
+                        <span id="radar-timer-${idx}" style="color: white; font-size: 11px;">--:--</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 6px; margin-top: 12px; color: var(--text-dim);">
+                        <span>CONFIANÇA ALGORÍTMICA</span>
                         <span style="color: var(--accent);">${s.prob}%</span>
                     </div>
-                    <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-                        <div style="height: 100%; width: ${s.prob}%; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow);"></div>
+                    <div style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                        <div style="height: 100%; width: ${s.prob}%; background: linear-gradient(90deg, var(--accent), #ff8c00); box-shadow: 0 0 10px var(--accent-glow);"></div>
                     </div>
                 </div>
 
-                <button class="confirm-btn" style="width: 100%; padding: 12px; font-size: 10px; height: auto; border-radius: 12px; letter-spacing: 1px;">SELECIONAR SINAL</button>
+                <button class="confirm-btn" style="width: 100%; padding: 14px; font-size: 11px; height: auto; border-radius: 12px; letter-spacing: 1.5px; font-weight: 900;">SELECIONAR OPERAÇÃO</button>
             </div>
         `).join('');
     }
