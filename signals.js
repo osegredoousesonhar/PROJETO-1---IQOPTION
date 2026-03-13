@@ -8,12 +8,12 @@ class SignalEngine {
         this.radarSignalsM1 = [];
         this.radarSignalsM5 = [];
         this.pendingTrades = [];
-        // Força Reset para R$ 262,78 (v4.9 - Refinamentos Finais)
-        const currentVersion = 'v4.9_final_refinement';
+        // Força Reset para R$ 262,78 (v5.0 - RESET TOTAL)
+        const currentVersion = 'v5.0_final_reset';
         const lastAppliedVersion = localStorage.getItem('iq_system_version');
 
         if (lastAppliedVersion !== currentVersion) {
-            console.log("Aplicando Reset de Versão: " + currentVersion);
+            console.log("Aplicando Reset Total de Versão: " + currentVersion);
             this.balance = 262.78;
             this.initialBalance = 262.78;
             this.dailyInitialBalance = 262.78;
@@ -24,6 +24,9 @@ class SignalEngine {
             localStorage.setItem('iq_system_version', currentVersion);
             localStorage.setItem('iq_balance', '262.78');
             localStorage.setItem('iq_daily_balance', '262.78');
+            localStorage.setItem('iq_history', '[]');
+            localStorage.setItem('iq_stats', JSON.stringify(this.stats));
+            localStorage.setItem('iq_ia_stats', JSON.stringify(this.iaStats));
             this.saveData();
         } else {
             this.history = JSON.parse(localStorage.getItem('iq_history')) || [];
@@ -166,9 +169,10 @@ class SignalEngine {
                 if (timerEl) {
                     const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                     timerEl.innerText = `FALTAM ${timeStr} PARA ENTRADA`;
-                    // Respeita as novas cores: Verde se > 30s, Vermelho se <= 30s
-                    timerEl.style.color = diff <= 30 ? '#ff5252' : '#00e676';
-                    timerEl.style.fontSize = '18px';
+                    // Verde vibrante (#00e676) para tempo > 30s, Vermelho para o cutoff
+                    timerEl.style.color = diff <= 20 ? '#ff5252' : '#00e676';
+                    timerEl.style.fontSize = '24px';
+                    timerEl.style.fontWeight = '900';
                 }
             } else {
                 // Entrada Iniciada - Mover para Pendentes (Descer para apuração)
