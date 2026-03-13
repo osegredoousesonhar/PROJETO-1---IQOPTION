@@ -14,7 +14,7 @@ export function UpcomingSignals({ signals, onSelect, selectedId }: UpcomingSigna
   const nextSignals = signals
     .filter(s => s.status === "PENDING" && s.id !== selectedId)
     .sort((a, b) => a.entryTime - b.entryTime)
-    .slice(0, 4);
+    .slice(0, 3);
 
   return (
     <div className="flex gap-4">

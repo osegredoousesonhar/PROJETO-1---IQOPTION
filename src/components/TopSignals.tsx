@@ -13,7 +13,7 @@ interface TopSignalsProps {
 export function TopSignals({ signals, selectedId, onSelect }: TopSignalsProps) {
   const top4 = [...signals]
     .sort((a, b) => b.probability - a.probability)
-    .slice(0, 4);
+    .slice(0, 3);
 
   if (top4.length === 0) {
     return (
@@ -26,7 +26,7 @@ export function TopSignals({ signals, selectedId, onSelect }: TopSignalsProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {top4.map((s, i) => {
         const isCall = s.type === "CALL";
         const isSelected = selectedId === s.id;
