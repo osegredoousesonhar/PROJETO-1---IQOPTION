@@ -14,12 +14,12 @@ class SignalEngine {
         this.iaStats = JSON.parse(localStorage.getItem('iq_ia_stats')) || { wins: 0, losses: 0 };
         this.globalIndications = JSON.parse(localStorage.getItem('iq_global_indications')) || [];
         this.pendingEvaluations = []; 
-        this.initialBalance = 235.62;
+        this.initialBalance = 265.65;
         this.balance = parseFloat(localStorage.getItem('iq_balance'));
         
-        // Sincronização forçada para o valor solicitado pelo usuário caso seja uma nova sessão ou valor antigo
-        if (isNaN(this.balance) || this.balance === 230.00 || this.balance === 225.00) {
-            this.balance = 235.62;
+        // Sincronização forçada para o novo valor solicitado pelo usuário
+        if (isNaN(this.balance) || this.balance === 235.62 || this.balance === 230.00) {
+            this.balance = 265.65;
             localStorage.setItem('iq_balance', this.balance);
         }
 
