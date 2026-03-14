@@ -17,7 +17,7 @@ export function UpcomingSignals({ signals, onSelect, selectedId }: UpcomingSigna
     .slice(0, 3);
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-3">
       {nextSignals.map((sig, index) => {
         const isCall = sig.type === "CALL";
         // Ordem inversa conforme o desenho (4, 3, 2, 1)
@@ -27,40 +27,40 @@ export function UpcomingSignals({ signals, onSelect, selectedId }: UpcomingSigna
           <motion.button
             key={sig.id}
             onClick={() => onSelect(sig.id)}
-            whileHover={{ y: -8, scale: 1.02 }}
-            className={`flex-1 min-w-[140px] h-[220px] p-6 rounded-[2rem] border transition-all text-left flex flex-col justify-between relative overflow-hidden group shadow-2xl ${
+            whileHover={{ x: 10, scale: 1.01 }}
+            className={`w-full p-5 rounded-2xl border transition-all text-left flex items-center gap-5 relative overflow-hidden glassy-card group ${
               selectedId === sig.id 
-                ? (isCall ? "bg-emerald-500/20 border-emerald-500/40" : "bg-rose-500/20 border-rose-500/40") 
-                : "bg-[#050b18]/90 border-white/5 hover:border-white/10"
+                ? (isCall ? "border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]" : "border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.1)]") 
+                : "border-white/5 hover:border-white/20"
             }`}
           >
-            {/* Index Badge */}
-            <div className="absolute top-4 right-4 text-[10px] font-black text-white/10">{displayIndex}</div>
-
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-              isCall ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "bg-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.4)]"
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-gradient relative z-10 ${
+              isCall ? "text-emerald-400" : "text-rose-400"
             }`}>
-              {isCall ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
+              {isCall ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              <div className={`absolute inset-0 blur-lg opacity-20 ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} />
             </div>
 
-            <div className="mt-4">
-              <div className="text-xl font-black text-white tracking-tighter leading-none mb-1">{sig.asset}</div>
-              <div className="flex items-center gap-2">
-                 <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${isCall ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"}`}>
-                    {sig.expiration}
-                 </span>
-                 <div className="flex items-center gap-1">
+            <div className="flex-1 relative z-10">
+              <div className="text-base font-black text-white tracking-tight leading-none mb-1.5">{sig.asset}</div>
+              <div className="flex items-center gap-3">
+                 <div className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5">
+                    <span className="text-[7.5px] font-black text-white/40 uppercase tracking-widest">
+                       {sig.expiration}
+                    </span>
+                 </div>
+                 <div className="flex items-center gap-1.5">
                     <Zap className="w-3 h-3 text-amber-400 fill-amber-400" />
-                    <span className="text-[10px] font-black text-white/60">{sig.probability}%</span>
+                    <span className="text-[10px] font-black text-white/80">{sig.probability}%</span>
                  </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 pt-4 border-t border-white/5">
-              <Clock className="w-3 h-3 text-white/20" />
-              <span className="text-[10px] font-black text-white/40 tabular-nums">
+            <div className="text-right relative z-10 pt-2">
+              <div className={`text-sm font-black italic tabular-nums leading-none ${isCall ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {new Date(sig.entryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
+              </div>
+              <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.2em] mt-1 block">Início</span>
             </div>
           </motion.button>
         );

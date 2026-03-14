@@ -23,8 +23,13 @@ interface TradeContextType {
   timeframe: string;
   avgPayout: number;
   marketHealth: number;
+  aiStatus: string;
+  aiReasoning: string[];
+  aiActivityState: "THINKING" | "ACTING" | "WAITING";
+  bestTime: string;
+  nextNews: string;
   setTimeframe: (tf: string) => void;
-  addTrade: (trade: Omit<Trade, "id" | "timestamp">) => void;
+  addTrade: (trade: Omit<Trade, "id" | "timestamp">) => string;
   updateTradeStatus: (id: string, status: "WIN" | "LOSS", profit: number) => void;
   toggleAutoSniper: () => void;
 }
@@ -42,6 +47,11 @@ export function TradeProvider({ children }: { children: ReactNode }) {
   const [timeframe, setTimeframe] = useState("5m");
   const [avgPayout, setAvgPayout] = useState(85);
   const [marketHealth, setMarketHealth] = useState(80);
+  const [aiStatus, setAiStatus] = useState("Sincronizando Cérebro IA...");
+  const [aiReasoning, setAiReasoning] = useState<string[]>([]);
+  const [aiActivityState, setAiActivityState] = useState<"THINKING" | "ACTING" | "WAITING">("WAITING");
+  const [bestTime, setBestTime] = useState("14:00 - 18:00");
+  const [nextNews, setNextNews] = useState("10m");
 
   useEffect(() => {
     RealTimeMarket.init();
@@ -98,15 +108,15 @@ export function TradeProvider({ children }: { children: ReactNode }) {
       setSignals(prev => {
         const combined = [...newSignals, ...prev];
         const now = Date.now();
-        const unique = combined.filter((sig, index, self) => 
-          index === self.findIndex((s) => 
-            s.asset === sig.asset && 
-            s.type === sig.type && 
-            s.expiration === sig.expiration &&
-            s.candleTimestamp === sig.candleTimestamp
+        return combined
+          .filter((sig, index, self) => 
+            index === self.findIndex((s) => 
+              s.asset === sig.asset && 
+              s.type === sig.type && 
+              s.expiration === sig.expiration &&
+              s.candleTimestamp === sig.candleTimestamp
+            )
           )
-        );
-
           .filter(sig => sig.entryTime > now - 120000)
           .sort((a, b) => b.probability - a.probability)
           .slice(0, 3);
@@ -119,6 +129,19 @@ export function TradeProvider({ children }: { children: ReactNode }) {
       }
     }
     setLastScan(new Date());
+    
+    // Simulação de "Raciocínio da IA"
+    const currentReasoning = SignalEngine.getReasoning();
+    const currentState = SignalEngine.getActivityState();
+    
+    setAiReasoning(currentReasoning);
+    setAiActivityState(currentState);
+
+    if (newSignals.length > 0) {
+      setAiStatus("Analisando Fluxo de Ordens Institucionais...");
+    } else {
+      setAiStatus("Aguardando Padrão de Alta Probabilidade...");
+    }
   }, []);
 
   useEffect(() => {
@@ -201,9 +224,10 @@ export function TradeProvider({ children }: { children: ReactNode }) {
   }, [signals]);
 
   const addTrade = (trade: Omit<Trade, "id" | "timestamp">) => {
+    const id = Math.random().toString(36).substr(2, 9);
     const newTrade: Trade = {
       ...trade,
-      id: Math.random().toString(36).substr(2, 9),
+      id,
       timestamp: Date.now(),
     };
     
@@ -214,6 +238,7 @@ export function TradeProvider({ children }: { children: ReactNode }) {
     });
     
     setTrades(prev => [newTrade, ...prev].slice(0, 50));
+    return id;
   };
 
   const updateTradeStatus = (id: string, status: "WIN" | "LOSS", profit: number) => {
@@ -226,6 +251,7 @@ export function TradeProvider({ children }: { children: ReactNode }) {
   return (
     <TradeContext.Provider value={{ 
       trades, balance, autoSniperActive, signals, lastScan, timeframe, avgPayout, marketHealth,
+      aiStatus, aiReasoning, aiActivityState, bestTime, nextNews,
       setTimeframe, addTrade, updateTradeStatus, toggleAutoSniper 
     }}>
       {children}

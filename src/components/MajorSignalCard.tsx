@@ -2,14 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Signal } from "@/lib/engine/signals";
-import { TrendingUp, TrendingDown, Clock, Zap, Target, ShieldCheck } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Zap, Target, ShieldCheck, PlayCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface MajorSignalCardProps {
   signal: Signal | null;
+  onOperate?: () => void;
 }
 
-export function MajorSignalCard({ signal }: MajorSignalCardProps) {
+export function MajorSignalCard({ signal, onOperate }: MajorSignalCardProps) {
   const [countdown, setCountdown] = useState<string>("");
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export function MajorSignalCard({ signal }: MajorSignalCardProps) {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`relative w-full rounded-3xl border overflow-hidden flex flex-col ${
+      className={`relative w-full rounded-3xl border overflow-hidden flex flex-col scanner-effect premium-shadow ${
         isCall ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
       }`}
     >
@@ -54,7 +55,7 @@ export function MajorSignalCard({ signal }: MajorSignalCardProps) {
           <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded bg-black/20 border border-white/5 ${isCall ? "text-emerald-400" : "text-rose-400"}`}>
              {isCall ? "COMPRA" : "VENDA"} PREMIUM
           </span>
-          <span className="text-[8px] font-black text-white/40 uppercase">V5 LIQUIDITY</span>
+          <span className="text-[8px] font-black text-white/40 uppercase">TERMINAL V5</span>
         </div>
 
         <div className="flex flex-col gap-6">
@@ -71,7 +72,7 @@ export function MajorSignalCard({ signal }: MajorSignalCardProps) {
              <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-4 relative italic">PREPARAÇÃO EM</div>
              <div className={`text-7xl font-black tracking-tighter tabular-nums relative leading-none ${
                 isCall ? "text-emerald-400" : "text-[#ff6b8b]"
-             } drop-shadow-[0_0_30px_rgba(255,107,139,0.1)]`}>
+             } drop-shadow-[0_0_30px_rgba(255,107,139,0.1)] ${isCall ? "glow-emerald" : "glow-rose"}`}>
                 {countdown}
              </div>
              <div className="mt-6 flex items-center gap-2 px-4 py-1.5 bg-white/5 rounded-full text-[9px] font-black text-white/40 uppercase tracking-widest relative border border-white/5">
@@ -89,6 +90,25 @@ export function MajorSignalCard({ signal }: MajorSignalCardProps) {
                 <div className="text-[8px] font-black text-white/20 uppercase mb-1">Sucesso</div>
                 <div className={`text-lg font-black ${isCall ? "text-emerald-400" : "text-rose-400"}`}>{score}%</div>
              </div>
+          </div>
+
+          <button 
+            onClick={onOperate}
+            className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg ${
+              isCall ? "bg-emerald-500 text-white shadow-emerald-500/10" : "bg-rose-500 text-white shadow-rose-500/10"
+            } hover:opacity-90`}
+          >
+            <PlayCircle className="w-5 h-5" /> EXECUTAR AGORA
+          </button>
+          
+          <div className="flex flex-col gap-2 p-4 bg-white/[0.02] rounded-2xl border border-white/5">
+             <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Racional da Inteligência Artificial</span>
+             </div>
+             <p className="text-[9px] font-medium text-white/60 leading-relaxed italic">
+                Sinal validado por Bonitão Engine v2.0. Confluência detectada em zona de suporte institucional com sentimentos macro positivos.
+             </p>
           </div>
         </div>
       </div>

@@ -121,10 +121,15 @@ export class SignalEngine {
     const bonitaoSignal = BonitaoEngine.analyze(asset, history, timeframe);
     if (bonitaoSignal) return bonitaoSignal;
 
-    // Se o Bonitão não encontrou sinal, não emitimos sinal fraco.
-    // O Bonitão já internamente faz o fallback se necessário, mas aqui 
-    // garantimos que o sistema não dispare nada que não passe pelo crivo.
     return null;
+  }
+
+  static getReasoning() {
+    return BonitaoEngine.getLatestReasoning();
+  }
+
+  static getActivityState() {
+    return BonitaoEngine.getActivityState();
   }
   private static createSignal(asset: string, type: SignalType, score: number, strategy: string, confluences: string[], expiration: string, candleTime: number, entryPrice: number, adx?: number, atr?: number): Signal {
     return {

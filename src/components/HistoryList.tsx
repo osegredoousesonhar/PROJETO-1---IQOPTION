@@ -57,12 +57,12 @@ export function HistoryList() {
                       <TrendingDown className="w-3 h-3 text-rose-400" />
                     )}
                     <span className={`text-[11px] font-black ${t.type === "CALL" ? "text-emerald-400" : "text-rose-400"}`}>
-                      {t.type}
+                      {t.type === "CALL" ? "COMPRA" : "VENDA"}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-xs text-white/60 font-medium">IA Engine v4.2</span>
+                  <span className="text-xs text-white/60 font-medium italic">Master IA v5.1</span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2 text-white/40">
