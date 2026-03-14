@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19",
     "@types/node": "^20",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
