@@ -203,3 +203,43 @@
   border-radius: inherit;
   background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.1));
 }
+
+/* ── Mesh Gradients ── */
+.mesh-blue {
+    background-color: hsla(224, 71%, 4%, 1);
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(222, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(217, 91%, 60%, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(222, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(217, 91%, 60%, 0.05) 0px, transparent 50%);
+}
+
+.mesh-emerald {
+    background-color: hsla(164, 71%, 4%, 1);
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(160, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(160, 91%, 60%, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(160, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(160, 91%, 60%, 0.05) 0px, transparent 50%);
+}
+
+.mesh-rose {
+    background-color: hsla(344, 71%, 4%, 1);
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(340, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(340, 91%, 60%, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(340, 47%, 11%, 1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(340, 91%, 60%, 0.05) 0px, transparent 50%);
+}
+
+.neon-border-blue {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 10px rgba(59, 130, 246, 0.1);
+}
+
+.neon-border-emerald {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 0 10px rgba(16, 185, 129, 0.1);
+}
+
+.neon-border-rose {
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.2), inset 0 0 10px rgba(244, 63, 94, 0.1);
+}
