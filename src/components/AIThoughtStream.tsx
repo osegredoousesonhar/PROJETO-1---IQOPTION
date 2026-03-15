@@ -2,7 +2,7 @@
 
 import { useTrades } from "@/lib/context/TradeContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Terminal, Cpu, Zap, Activity } from "lucide-react";
+import { Terminal, Cpu, Zap, Activity, ShieldCheck } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export function AIThoughtStream() {
@@ -17,8 +17,8 @@ export function AIThoughtStream() {
 
   const getStateColor = () => {
     switch (aiActivityState) {
-      case "ACTING": return "text-emerald-400";
-      case "THINKING": return "text-blue-400";
+      case "ACTING": return "text-[#00e676]";
+      case "THINKING": return "text-[#ffb800]";
       default: return "text-white/40";
     }
   };
@@ -32,32 +32,27 @@ export function AIThoughtStream() {
   };
 
   return (
-    <div className="glassy-card rounded-[2rem] p-6 border-gradient relative overflow-hidden h-[320px] flex flex-col noise">
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-            <Terminal className="w-4 h-4 text-blue-400" />
+    <div className="bg-[#0a0c14] rounded-[2rem] p-8 border border-white/5 relative overflow-hidden h-[380px] flex flex-col noise mesh-gold shadow-2xl">
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#ffb800]/10 flex items-center justify-center border border-[#ffb800]/20">
+            <ShieldCheck className="w-5 h-5 text-[#ffb800]" />
           </div>
           <div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">Processamento Neural</h3>
-            <div className={`flex items-center gap-1.5 mt-0.5 ${getStateColor()}`}>
+            <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white italic">Matriz Neural HARDWARE</h3>
+            <div className={`flex items-center gap-1.5 mt-1 ${getStateColor()}`}>
               {getStateIcon()}
-              <span className="text-[8px] font-black uppercase tracking-widest">
-                {aiActivityState === "ACTING" ? "Executando Pulso" : aiActivityState === "THINKING" ? "Calculando Confluência" : "Aguardando Setup"}
+              <span className="text-[9px] font-black uppercase tracking-widest italic">
+                {aiActivityState === "ACTING" ? "Executando Protocolo" : aiActivityState === "THINKING" ? "Injetando Analytica" : "Em Espera Elite"}
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex gap-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-          <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-          <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
         </div>
       </div>
 
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar"
+        className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar"
       >
         <AnimatePresence initial={false}>
           {aiReasoning.map((log, i) => (
@@ -65,10 +60,10 @@ export function AIThoughtStream() {
               key={`${log}-${i}`}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex gap-3 items-start group"
+              className="flex gap-4 items-start group"
             >
-              <span className="text-[8px] font-mono text-white/20 mt-1">[{new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
-              <p className="text-[10px] font-medium leading-relaxed text-white/70 group-last:text-blue-400 group-last:font-bold italic">
+              <span className="text-[9px] font-black text-[#ffb800]/30 mt-1 tabular-nums italic">[{new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+              <p className="text-[11px] font-bold leading-relaxed text-white/50 group-last:text-[#ffb800] group-last:font-black italic transition-all group-last:scale-[1.02] origin-left">
                 {log}
               </p>
             </motion.div>
@@ -77,21 +72,25 @@ export function AIThoughtStream() {
         
         {aiActivityState === "THINKING" && (
           <motion.div 
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="flex gap-2 items-center text-[10px] text-blue-400/50 italic font-medium"
+            animate={{ opacity: [0.3, 0.7, 0.3] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="flex gap-3 items-center text-[10px] text-[#ffb800]/60 italic font-black"
           >
-            <span>-</span>
-            <span>Avaliando próxima camada de liquidez...</span>
+            <div className="flex gap-1">
+              <span className="w-1 h-1 rounded-full bg-[#ffb800] animate-bounce" />
+              <span className="w-1 h-1 rounded-full bg-[#ffb800] animate-bounce [animation-delay:0.2s]" />
+              <span className="w-1 h-1 rounded-full bg-[#ffb800] animate-bounce [animation-delay:0.4s]" />
+            </div>
+            <span>VARREDURA DE LIQUIDEZ EM CURSO...</span>
           </motion.div>
         )}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-        <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em]">Cérebro v4.2_Liquid_Sapphire</span>
-        <div className="flex items-center gap-2">
-           <div className="w-1 h-1 rounded-full bg-blue-500 animate-ping" />
-           <span className="text-[7px] font-black text-blue-400/60 uppercase">Link Neural Ativo</span>
+      <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+        <span className="text-[8px] font-black text-white/10 uppercase tracking-[0.4em]">Elite Core v5.1_HARD_RESET</span>
+        <div className="flex items-center gap-2 px-3 py-1 bg-[#ffb800]/5 rounded-full border border-[#ffb800]/10">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#ffb800] animate-pulse" />
+           <span className="text-[8px] font-black text-[#ffb800]/80 uppercase italic tracking-widest">IA Conectada</span>
         </div>
       </div>
     </div>

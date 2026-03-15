@@ -1,56 +1,60 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, AlertTriangle, ShieldAlert, Activity } from "lucide-react";
+import { ShieldCheck, AlertTriangle, ShieldAlert, Activity, Zap } from "lucide-react";
 import { useTrades } from "@/lib/context/TradeContext";
 
 export function MarketStatusIndicator() {
   const { marketHealth } = useTrades();
 
   const getStatus = () => {
-    if (marketHealth >= 80) return { label: "BAIXO RISCO", color: "emerald", icon: ShieldCheck, desc: "Condições ideais de tendência." };
-    if (marketHealth >= 60) return { label: "MODERADO", color: "blue", icon: Activity, desc: "Aguarde confirmações extras." };
-    if (marketHealth >= 40) return { label: "ARRISCADO", color: "amber", icon: AlertTriangle, desc: "Mercado com ruído/lateral." };
-    return { label: "PERIGOSO", color: "rose", icon: ShieldAlert, desc: "Não operar. Volatilidade insana." };
+    if (marketHealth >= 80) return { label: "BAIXO RISCO", color: "#00e676", icon: ShieldCheck, desc: "Condições ideais de tendência." };
+    if (marketHealth >= 60) return { label: "MODERADO", color: "#ffb800", icon: Activity, desc: "Aguarde confirmações extras." };
+    if (marketHealth >= 40) return { label: "ARRISCADO", color: "#ffb800", icon: AlertTriangle, desc: "Mercado com ruído/lateral." };
+    return { label: "PERIGOSO", color: "#ff5252", icon: ShieldAlert, desc: "Não operar. Volatilidade insana." };
   };
 
   const status = getStatus();
   const Icon = status.icon;
 
   return (
-    <div className={`bg-${status.color}-500/5 border border-${status.color}-500/20 rounded-3xl p-6 relative overflow-hidden group`}>
-      <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${status.color}-500/10 blur-3xl rounded-full`} />
+    <div className="bg-[#0a0c14] border border-white/5 rounded-[2rem] p-8 relative overflow-hidden group shadow-2xl">
+      <div className="absolute -right-8 -bottom-8 w-32 h-32 opacity-10 blur-3xl rounded-full" style={{ backgroundColor: status.color }} />
       
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Icon className={`w-4 h-4 text-${status.color}-400`} />
-            <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-${status.color}-400`}>SAÚDE DO MERCADO</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Icon className="w-5 h-5" style={{ color: status.color }} />
+            <span className="text-[11px] font-black uppercase tracking-[0.3em] italic" style={{ color: status.color }}>SAÚDE DO MERCADO</span>
           </div>
-          <div className="text-xl font-black text-white">{marketHealth}%</div>
+          <div className="text-2xl font-black text-white italic tabular-nums tracking-tighter">{marketHealth}%</div>
         </div>
 
-        <div className="text-lg font-black text-white leading-tight mb-1">
+        <div className="text-2xl font-black text-white leading-tight mb-2 italic">
           {status.label}
         </div>
-        <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">
+        <div className="text-[11px] font-bold text-white/40 uppercase tracking-[0.2em] leading-relaxed italic">
           {status.desc}
         </div>
 
-        <div className="mt-5 w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="mt-8 w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${marketHealth}%` }}
-            className={`h-full bg-${status.color}-500`}
+            className="h-full rounded-full shadow-[0_0_10px_rgba(255,184,0,0.3)]"
+            style={{ backgroundColor: status.color }}
           />
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-            <div className={`w-1.5 h-1.5 rounded-full bg-${marketHealth > 40 ? 'emerald' : 'rose'}-500 animate-pulse`} />
-            <span className="text-[8px] font-black text-emerald-400/80 uppercase">Estável</span>
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+            <div className="w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px_#ffb800]" style={{ backgroundColor: status.color }} />
+            <span className="text-[9px] font-black text-white/50 uppercase italic tracking-widest">Sincronizado</span>
           </div>
-          <span className="text-[9px] font-bold text-white/20 uppercase">ADX Sincronizado</span>
+          <div className="flex items-center gap-2">
+            <Zap className="w-3 h-3 text-[#ffb800]" />
+            <span className="text-[10px] font-bold text-white/20 uppercase italic tracking-[0.2em]">Fluxo de Liquidez</span>
+          </div>
         </div>
       </div>
     </div>

@@ -12,13 +12,19 @@ import { AssetHeatmap } from "@/components/AssetHeatmap";
 import { AIThoughtStream } from "@/components/AIThoughtStream";
 import { useTrades } from "@/lib/context/TradeContext";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, ShieldCheck, Zap } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Zap, Server, Clock } from "lucide-react";
 import { SimulationModal } from "@/components/SimulationModal";
 
 export default function DashboardPage() {
   const { signals, balance, bestTime, nextNews } = useTrades();
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [showSimulation, setShowSimulation] = useState(false);
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!selectedSignalId && signals.length > 0) {
@@ -29,170 +35,134 @@ export default function DashboardPage() {
   const selectedSignal = signals.find((s) => s.id === selectedSignalId) || (signals.length > 0 ? signals[0] : null);
 
   return (
-    <div className="flex min-h-screen bg-[#020611] text-white trading-grid">
+    <div className="flex min-h-screen bg-[#020408] text-white overflow-hidden selection:bg-[#ffb800]/30">
       <Sidebar />
 
-      <main className="flex-1 pl-20 transition-all overflow-x-hidden">
-        <div className="max-w-[1700px] mx-auto p-10 flex flex-col gap-12">
+      <main className="flex-1 ml-64 p-10 overflow-y-auto h-screen custom-scrollbar">
+        <div className="max-w-[1600px] mx-auto flex flex-col gap-12">
           
-          {/* Header Ultra Premium */}
-          <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-10 bg-white/[0.02] backdrop-blur-3xl p-10 rounded-[3rem] border border-white/10 premium-shadow mesh-blue relative overflow-hidden group">
-            <div className="absolute inset-0 scanner-effect opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity" />
+          {/* Header Superior - Estilo Elite V5.1 */}
+          <header className="flex flex-col xl:flex-row xl:items-center justify-between gap-12 border-b border-white/5 pb-12 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-[#ffb800] blur-[150px] opacity-[0.03] transition-opacity group-hover:opacity-[0.07] pointer-events-none" />
             
-            <div className="flex items-center gap-8 relative z-10">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.3)] border border-white/20 transform group-hover:rotate-6 transition-transform">
-                <LayoutDashboard className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tighter leading-none flex items-center gap-3 italic">
-                  TERMINAL <span className="text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)] uppercase not-italic">Maestria</span>
-                  <span className="text-[12px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-black not-italic ml-4">GOLD v5.1</span>
-                </h1>
-                <div className="flex items-center gap-3 mt-3">
-                  <motion.div 
-                    animate={{ scale: [1, 1.6, 1], opacity: [0.6, 1, 0.6] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)]" 
-                  />
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50">
-                    SISTEMA COGNITIVO ATIVO — <span className="text-blue-400 italic">BONITÃO ENGINE V2.0_ELITE</span>
-                  </span>
-                </div>
-              </div>
+            <div className="relative z-10">
+              <h1 className="text-4xl font-black italic tracking-tighter leading-none mb-4 flex items-center gap-4">
+                <span className="text-white drop-shadow-2xl">CARREGANDO</span>
+                <span className="text-[#ffb800] uppercase drop-shadow-[0_0_15px_rgba(255,184,0,0.5)]">
+                  {selectedSignal?.asset || "ANALISANDO..."}
+                </span>
+                <span className="text-[14px] bg-[#ffb800]/10 text-[#ffb800] px-4 py-1.5 rounded-full border border-[#ffb800]/20 font-black not-italic ml-6">
+                   MASTER ELITE v5.1 Platinum
+                </span>
+              </h1>
+              <p className="text-[14px] font-bold text-white/30 tracking-[0.2em] flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-[#00e676] animate-pulse shadow-[0_0_10px_#00e676]" />
+                SISTEMA COGNITIVO ATIVO — <span className="text-white">BONITÃO ENGINE V2.0 HARDWARE MODE</span>
+              </p>
             </div>
             
-            <div className="flex flex-wrap items-center gap-10 relative z-10">
-              <div className="flex gap-10">
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Janela de Alta Assertividade</span>
-                  <span className="text-lg font-black text-emerald-400 flex items-center gap-3 tabular-nums drop-shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]" />
-                    {bestTime}
-                  </span>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Impacto de Notícias</span>
-                  <span className="text-lg font-black text-amber-500 italic drop-shadow-sm">-{nextNews}min</span>
-                </div>
+            <div className="flex items-center gap-12 relative z-10 bg-black/40 px-10 py-6 rounded-[2.5rem] border border-white/5 backdrop-blur-3xl">
+              <div className="flex flex-col items-end border-r border-white/10 pr-12">
+                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mb-2 flex items-center gap-2 italic">
+                  <Clock className="w-3 h-3" /> Relógio Local
+                </span>
+                <span className="text-3xl font-black italic tabular-nums leading-none tracking-tighter">
+                  {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
               </div>
-              <div className="h-16 w-[2px] bg-white/5 hidden xl:block" />
-              <div className="flex flex-col items-end bg-black/40 px-8 py-4 rounded-3xl border border-white/10 hover:border-emerald-500/40 transition-all cursor-default group/balance shadow-inner">
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-2 group-hover/balance:text-emerald-400/60 transition-colors">Banca Operacional</span>
-                <span className="text-3xl font-black italic text-emerald-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.3)] tracking-tighter tabular-nums">
-                  R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-black text-[#ffb800] uppercase tracking-[0.4em] mb-2 flex items-center gap-2 italic">
+                  <Server className="w-3 h-3" /> Horário Corretora
+                </span>
+                <span className="text-3xl font-black text-[#ffb800] italic tabular-nums leading-none tracking-tighter">
+                  {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </span>
               </div>
             </div>
           </header>
 
-          {/* Grid Principal do Sistema - 12 Colunas */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Grid Principal do Sistema */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            {/* Coluna Esquerda (3): Radar & AI Thoughts */}
-            <div className="lg:col-span-3 flex flex-col gap-12">
-              <section className="flex flex-col gap-6">
-                <div className="flex items-center justify-between px-3">
-                  <h2 className="text-[12px] font-black uppercase tracking-[0.5em] text-white/40 flex items-center gap-3">
-                    <Zap className="w-4 h-4 text-blue-500" />
-                    Radar Master
-                  </h2>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
-                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                     <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest">Live Scan</span>
-                  </div>
-                </div>
-                <div className="glassy-card rounded-[2.5rem] border-gradient overflow-hidden">
-                  <UpcomingSignals 
-                    signals={signals} 
-                    onSelect={setSelectedSignalId} 
-                    selectedId={selectedSignalId} 
-                  />
-                </div>
+            {/* Colunas Combinadas de Radar e Analytics (9) */}
+            <div className="lg:col-span-8 flex flex-col gap-12">
+              <section className="flex flex-col gap-10">
+                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                    <div className="flex flex-col gap-6">
+                      <div className="px-5">
+                       <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-[#ffb800] flex items-center gap-3 italic mb-1">
+                          RADAR OPORTUNIDADES M1
+                        </h2>
+                        <div className="h-1 w-20 bg-[#ffb800] rounded-full opacity-30" />
+                      </div>
+                      <UpcomingSignals signals={signals} onSelect={setSelectedSignalId} selectedId={selectedSignalId} />
+                    </div>
+
+                    <div className="flex flex-col gap-6">
+                       <div className="px-5">
+                        <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-white/40 flex items-center gap-3 italic mb-1">
+                          MATRIZ NEURAL ELITE
+                        </h2>
+                        <div className="h-1 w-20 bg-white/10 rounded-full" />
+                      </div>
+                      <AIThoughtStream />
+                    </div>
+                 </div>
               </section>
 
-              <section className="flex flex-col gap-6">
-                <h2 className="text-[12px] font-black uppercase tracking-[0.5em] text-white/40 flex items-center gap-3 px-3">
-                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                   Matriz Neural
-                </h2>
-                <AIThoughtStream />
-              </section>
-            </div>
-
-            {/* Coluna Central (6): Charting & Stats */}
-            <div className="lg:col-span-6 flex flex-col gap-10">
-              <div className="relative group p-[2px] rounded-[3rem] bg-gradient-to-br from-white/10 to-transparent">
-                <div className="absolute inset-0 bg-blue-600/10 blur-[120px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="bg-[#020611] rounded-[3rem] overflow-hidden p-2">
+              <div className="relative group rounded-[3.5rem] overflow-hidden p-[2px] bg-gradient-to-br from-[#ffb800]/20 via-transparent to-white/5">
+                <div className="bg-[#020408] rounded-[3.5rem] overflow-hidden shadow-2xl p-4">
                   <ProfessionalChart asset={selectedSignal?.asset || "EUR/USD"} timeframe={selectedSignal?.expiration || "5m"} />
                 </div>
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#020408] to-transparent pointer-events-none opacity-40" />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                  <MarketStatusIndicator />
                  <StatsPanel />
               </div>
-
-              <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between px-4">
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-white/30 italic">Log de Operações Recentes</h2>
-                  <span className="px-3 py-1 bg-white/5 rounded-full text-[8px] font-black text-white/20 uppercase tracking-widest border border-white/5">Blockchain Verified</span>
-                </div>
+              
+              <div className="flex flex-col gap-8">
+                <span className="text-[12px] font-black uppercase tracking-[0.6em] text-white/20 italic px-5">Protocolo de Operações Recentes</span>
                 <HistoryList />
               </div>
             </div>
 
-            {/* Coluna Direita (3): Signal Card & Heatmap */}
-            <div className="lg:col-span-3 flex flex-col gap-12">
-               <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-rose-500/10 to-transparent rounded-full border-l-2 border-rose-500">
-                  <Zap className="w-4 h-4 text-rose-500 animate-pulse" />
-                  <h2 className="text-[12px] font-black uppercase tracking-[0.4em] text-white/50 italic">
-                    Gatilho de Alta Probabilidade
+            {/* Coluna de Ação Direta (4) */}
+            <div className="lg:col-span-4 flex flex-col gap-12 sticky top-10">
+               <div className="flex flex-col gap-4 px-6 border-l-4 border-[#ffb800]">
+                  <h2 className="text-[18px] font-black uppercase tracking-[0.3em] text-white italic">
+                    EXECUÇÃO <span className="text-[#ffb800]">MASTER</span>
                   </h2>
+                  <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
+                    Sinal verificado por tripla confluência algorítmica v5.1_SAPPHIRE
+                  </p>
                </div>
                
                <MajorSignalCard 
                 signal={selectedSignal} 
                 onOperate={() => setShowSimulation(true)}
               />
-              
-              <div className="flex flex-col gap-6">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-white/20 px-4 italic border-l border-white/10">Mapa Térmico Global</h3>
-                <div className="glassy-card rounded-[2.5rem] border-gradient p-2">
-                  <AssetHeatmap />
-                </div>
+
+              <div className="bg-black/40 rounded-[2.5rem] border border-white/5 p-10 flex flex-col gap-8">
+                 <div className="flex flex-col">
+                    <span className="text-[11px] font-black text-[#ffb800] uppercase tracking-[0.4em] mb-4 flex items-center gap-2 italic">
+                       SALDO EM TERMINAL
+                    </span>
+                    <h3 className="text-5xl font-black italic tracking-tighter text-white tabular-nums drop-shadow-lg">
+                      R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </h3>
+                 </div>
+                 <AssetHeatmap />
+              </div>
+
+              <div className="p-8 bg-gradient-to-br from-[#ffb800]/5 to-transparent border border-[#ffb800]/10 rounded-[2rem] flex flex-col gap-4 text-center">
+                 <span className="text-[9px] font-black text-[#ffb800] uppercase tracking-[0.5em] italic">Protocolo de Segurança</span>
+                 <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest font-mono">SECURE_SSL_V5_HARDWARE_CONNECTED</p>
               </div>
             </div>
 
           </div>
-
-          {/* Footer ultra minimalista e premium */}
-          <footer className="mt-12 pt-12 border-t border-white/5 flex flex-col flex-wrap lg:flex-row justify-between items-center gap-10">
-            <div className="flex items-center gap-10">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em] mb-1">Architecture</span>
-                <span className="text-[13px] font-bold text-white/30 italic">IQ Signals Pro — <span className="text-white/60">Master Legacy 5.1</span></span>
-              </div>
-              <div className="w-[1px] h-12 bg-white/10" />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em] mb-1">Neural Core</span>
-                <span className="text-[13px] font-bold text-blue-500/50 tracking-widest font-mono uppercase">Liquidity_Sapphire_V5</span>
-              </div>
-            </div>
-            
-            <div className="flex gap-12 items-center">
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em]">Quantum Connection Active</span>
-                </div>
-                <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.4em] mt-1">Latency: 2ms - 99.9% Uptime</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                <span className="text-[11px] font-bold text-white/15 uppercase tracking-[0.5em]">© 2026 Master AI Systems inc.</span>
-              </div>
-            </div>
-          </footer>
         </div>
       </main>
 
@@ -202,7 +172,7 @@ export default function DashboardPage() {
             signal={selectedSignal}
             onClose={() => setShowSimulation(false)}
             onConfirm={(amount) => {
-              console.log("Iniciando simulação Master com valor:", amount);
+              console.log("Iniciando simulação com valor:", amount);
             }}
           />
         )}

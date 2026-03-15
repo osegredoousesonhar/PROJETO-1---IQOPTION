@@ -4,26 +4,26 @@
 
 /* ── Global Theme & Design System ─────────────────────────────────── */
 :root {
-  --color-bg: #030816;
-  --color-surface: #0a0f1d;
-  --color-surface-hover: #12182b;
-  --color-border: rgba(255, 255, 255, 0.05);
-  --color-text: #f0f4f8;
-  --color-muted: #64748b;
-  --color-up: #10b981;
-  --color-up-glow: rgba(16, 185, 129, 0.15);
-  --color-down: #f43f5e;
-  --color-down-glow: rgba(244, 63, 94, 0.15);
-  --color-accent: #3b82f6;
-  --color-accent-glow: rgba(59, 130, 246, 0.2);
+  --color-bg: #05060a;
+  --color-surface: #0a0c14;
+  --color-surface-hover: #161a29;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text: #ffffff;
+  --color-muted: #94a3b8;
+  --color-up: #00e676;
+  --color-up-glow: rgba(0, 230, 118, 0.2);
+  --color-down: #ff5252;
+  --color-down-glow: rgba(255, 82, 82, 0.2);
+  --color-accent: #ffb800;
+  --color-accent-glow: rgba(255, 184, 0, 0.3);
 }
 
 @layer base {
   body {
     @apply bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased;
     background-image: 
-      radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+      radial-gradient(circle at 50% 0%, rgba(255, 184, 0, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 0% 100%, rgba(0, 230, 118, 0.02) 0%, transparent 40%);
   }
 }
 
@@ -120,8 +120,8 @@
 
 .premium-shadow {
   box-shadow: 
-    0 20px 50px -10px rgba(0, 0, 0, 0.8),
-    0 0 20px rgba(59, 130, 246, 0.05);
+    0 30px 60px -12px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(255, 184, 0, 0.05);
 }
 
 .holographic-card {
@@ -146,12 +146,12 @@
   background: conic-gradient(
     from 0deg,
     transparent,
-    rgba(59, 130, 246, 0.1),
+    rgba(255, 184, 0, 0.1),
     transparent,
-    rgba(16, 185, 129, 0.05),
+    rgba(0, 230, 118, 0.05),
     transparent
   );
-  animation: rotate 10s linear infinite;
+  animation: rotate 12s linear infinite;
   pointer-events: none;
 }
 
@@ -205,13 +205,13 @@
 }
 
 /* ── Mesh Gradients ── */
-.mesh-blue {
-    background-color: hsla(224, 71%, 4%, 1);
+.mesh-gold {
+    background-color: #05060a;
     background-image: 
-        radial-gradient(at 0% 0%, hsla(222, 47%, 11%, 1) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(217, 91%, 60%, 0.1) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, hsla(222, 47%, 11%, 1) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, hsla(217, 91%, 60%, 0.05) 0px, transparent 50%);
+        radial-gradient(at 0% 0%, #0a0c14 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 184, 0, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #161a29 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(255, 184, 0, 0.05) 0px, transparent 50%);
 }
 
 .mesh-emerald {
@@ -232,8 +232,8 @@
         radial-gradient(at 0% 100%, hsla(340, 91%, 60%, 0.05) 0px, transparent 50%);
 }
 
-.neon-border-blue {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 0 10px rgba(59, 130, 246, 0.1);
+.neon-border-gold {
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.15), inset 0 0 10px rgba(255, 184, 0, 0.05);
 }
 
 .neon-border-emerald {
