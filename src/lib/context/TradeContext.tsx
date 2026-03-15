@@ -139,10 +139,27 @@ export function TradeProvider({ children }: { children: ReactNode }) {
 
     if (newSignals.length > 0) {
       setAiStatus("Analisando Fluxo de Ordens Institucionais...");
+      
+      // Lógica Auto Sniper
+      if (autoSniperActive) {
+        newSignals.forEach(sig => {
+           if (sig.probability >= 90) {
+              const amount = 50; // Valor padrão por entrada Sniper
+              addTrade({
+                asset: sig.asset,
+                type: sig.type,
+                amount,
+                profit: 0,
+                status: "PENDING"
+              });
+              console.log(`[AUTO SNIPER] Entrada automática em ${sig.asset} (${sig.type})`);
+           }
+        });
+      }
     } else {
       setAiStatus("Aguardando Padrão de Alta Probabilidade...");
     }
-  }, []);
+  }, [autoSniperActive]);
 
   useEffect(() => {
     // Primeira execução
