@@ -296,7 +296,10 @@ export class BonitaoEngine {
     }
 
     // Peso do Momentum e Volume (25%)
-    if (data.momentum >= 1) score += 10;
+    if (data.momentum >= 1) {
+        score += 10;
+        confluences.push("Momentum Confirmado");
+    }
     if (data.volStrength > 10) {
         score += 15;
         confluences.push("Pressão de Volume Confirmada");
