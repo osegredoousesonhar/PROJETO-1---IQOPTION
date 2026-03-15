@@ -22,39 +22,39 @@ const ASSETS: HeatmapAsset[] = [
 ];
 
 function getBg(change: number): string {
-  if (change > 1.5) return "rgba(34,197,94,0.30)";
-  if (change > 0.5) return "rgba(34,197,94,0.18)";
-  if (change > 0)   return "rgba(34,197,94,0.07)";
-  if (change > -0.5) return "rgba(239,68,68,0.07)";
-  if (change > -1.5) return "rgba(239,68,68,0.18)";
-  return "rgba(239,68,68,0.30)";
+  if (change > 1.5) return "rgba(0, 230, 118, 0.25)";
+  if (change > 0.5) return "rgba(0, 230, 118, 0.15)";
+  if (change > 0)   return "rgba(0, 230, 118, 0.05)";
+  if (change > -0.5) return "rgba(255, 82, 82, 0.05)";
+  if (change > -1.5) return "rgba(255, 82, 82, 0.15)";
+  return "rgba(255, 82, 82, 0.25)";
 }
 
 export function AssetHeatmap() {
   return (
-    <div className="glass glass-border rounded-2xl p-5">
-      <h3 className="text-xs font-black uppercase tracking-widest text-white/40 mb-4">
-        Mapa de Calor dos Ativos
+    <div className="bg-black/40 rounded-[2rem] p-6 border border-white/5 shadow-2xl">
+      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 mb-6 italic">
+        Fluxo Global de Ativos
       </h3>
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 xl:grid-cols-4 gap-3">
         {ASSETS.map((a) => (
           <div
             key={a.name}
-            className="rounded-xl p-3 cursor-pointer transition-all hover:scale-[1.03]"
+            className="rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.05] hover:shadow-xl border border-white/[0.03]"
             style={{
               backgroundColor: getBg(a.change),
-              border: "1px solid rgba(255,255,255,0.06)",
+              boxShadow: a.change > 1 ? 'inset 0 0 20px rgba(0, 230, 118, 0.05)' : 'none'
             }}
           >
-            <div className="text-xs font-black">{a.name}</div>
+            <div className="text-[11px] font-black italic text-white/80">{a.name}</div>
             <div
-              className="text-sm font-black mt-1"
-              style={{ color: a.change >= 0 ? "#22c55e" : "#ef4444" }}
+              className="text-lg font-black italic tracking-tighter mt-1"
+              style={{ color: a.change >= 0 ? "#00e676" : "#ff5252" }}
             >
               {a.change > 0 ? "+" : ""}
               {a.change.toFixed(2)}%
             </div>
-            <div className="text-[9px] text-white/30 mt-0.5">Score: {a.score}</div>
+            <div className="text-[8px] font-bold text-white/20 uppercase mt-1">S: {a.score}</div>
           </div>
         ))}
       </div>

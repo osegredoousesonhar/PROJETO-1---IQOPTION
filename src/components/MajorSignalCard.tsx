@@ -46,14 +46,15 @@ export function MajorSignalCard({ signal, onOperate }: MajorSignalCardProps) {
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`relative w-full rounded-[2.5rem] border-2 overflow-hidden flex flex-col premium-shadow transition-all duration-700 ${
+      className={`relative w-full rounded-[2.5rem] border-2 overflow-hidden flex flex-col transition-all duration-700 ${
         isCall 
-          ? "bg-gradient-to-br from-[#0a0c14] to-[#05060a] border-emerald-500/40" 
-          : "bg-gradient-to-br from-[#0a0c14] to-[#05060a] border-rose-500/40"
+          ? "bg-gradient-to-br from-[#0a0c14] to-[#05060a] border-emerald-500/40 neon-border-emerald" 
+          : "bg-gradient-to-br from-[#0a0c14] to-[#05060a] border-rose-500/40 neon-border-rose"
       }`}
     >
-      {/* Background Accent Glow */}
-      <div className={`absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} style={{ filter: 'blur(100px)' }} />
+      {/* Background Accent Glow - Performance Optimized */}
+      <div className={`absolute -top-24 -right-24 w-64 h-64 opacity-20 pointer-events-none rounded-full ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} style={{ filter: 'blur(80px)' }} />
+      <div className={`absolute -bottom-24 -left-24 w-64 h-64 opacity-10 pointer-events-none rounded-full ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} style={{ filter: 'blur(80px)' }} />
       
       <div className="p-8 relative z-10">
         <div className="flex items-center justify-between mb-8">
@@ -87,17 +88,17 @@ export function MajorSignalCard({ signal, onOperate }: MajorSignalCardProps) {
           </div>
 
           <div className="relative group">
-             <div className={`absolute -inset-8 blur-[80px] opacity-30 transition-opacity group-hover:opacity-50 rounded-[4rem] ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} />
+             <div className={`absolute -inset-4 blur-[20px] opacity-20 transition-opacity group-hover:opacity-40 rounded-[4rem] ${isCall ? "bg-emerald-500" : "bg-rose-500"}`} />
              <div className="bg-gradient-to-b from-[#161b2b] to-[#0a0c14] rounded-[3rem] p-12 border-2 border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 scanner-effect opacity-20 pointer-events-none" />
                 
                 <div className="text-[12px] font-black text-white/40 uppercase tracking-[1em] mb-8 italic">GATILHO DE ENTRADA</div>
-                <div className={`text-9xl font-black tracking-tighter tabular-nums leading-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] ${
+                <div className={`text-9xl font-black tracking-tighter tabular-nums leading-none drop-shadow-[0_0_50px_rgba(255,255,255,0.15)] ${
                    isCall ? "text-emerald-400 glow-emerald" : "text-rose-400 glow-rose"
                 }`}>
                    {countdown}
                 </div>
-                <div className="mt-10 flex items-center gap-4 px-10 py-4 bg-black/40 rounded-full text-[12px] font-black text-white/80 uppercase tracking-[0.4em] border border-white/10 hover:border-[#ffb800]/50 transition-all cursor-default">
+                <div className="mt-10 flex items-center gap-4 px-10 py-4 bg-black/60 rounded-full text-[12px] font-black text-white/80 uppercase tracking-[0.4em] border border-white/10 hover:border-[#ffb800]/50 transition-all cursor-default shadow-inner">
                    <Clock className={`w-6 h-6 ${isCall ? "text-emerald-400" : "text-rose-400"}`} />
                    PROTOCOLO SINCRONIZADO
                 </div>

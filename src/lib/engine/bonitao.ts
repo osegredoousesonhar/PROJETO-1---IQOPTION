@@ -96,22 +96,33 @@ export class BonitaoEngine {
     }
     this.logReasoning("Confirmação de volume/fluxo validada.");
 
-    // 7. FORÇA DA TENDÊNCIA (ADX)
+    // 7. FORÇA DA TENDÊNCIA (ADX) & DIVERGÊNCIA (NOVO)
     const trendStrength = this.checkTrendStrength(history);
     if (trendStrength < 25) {
-        this.logReasoning(`Tendência muito fraca (ADX: ${trendStrength.toFixed(1)}). Aguardando definição.`);
+        this.logReasoning(`Tendência sem definição (ADX: ${trendStrength.toFixed(1)}). Aguardando volatilidade.`);
         this.activityState = "WAITING";
         return null;
     }
 
-    // 8. DETECÇÃO DE ARMADILHAS (REGRA 11)
+    const divergence = this.detectDivergence(history);
+    if (divergence) {
+        this.logReasoning(`DIVERGÊNCIA DETECTADA: ${divergence}. Alerta de reversão potente!`);
+    }
+
+    // 8. RASTREAMENTO INSTITUCIONAL (NOVO)
+    const instFootprint = this.detectInstitutionalFootprint(history);
+    if (instFootprint.detected) {
+        this.logReasoning(`PEGADA INSTITUCIONAL: ${instFootprint.desc}.`);
+    }
+
+    // 9. DETECÇÃO DE ARMADILHAS E LIQUIDEZ (REGRA 11)
     if (this.detectTrap(history)) {
-        this.logReasoning("CUIDADO: Vela de exaustão detectada. Risco de reversão.");
+        this.logReasoning("CUIDADO: Vela de exaustão/anormal detectada. Risco de 'Bull/Bear Trap'.");
         this.activityState = "WAITING";
         return null;
     }
 
-    // 9. CÁLCULO DE SCORE DE PROBABILIDADE (REGRA 14)
+    // 10. CÁLCULO DE SCORE DE PROBABILIDADE (REGRA 14)
     const result = this.calculateProbabilityScore({
         context,
         trend: trendAlign.trend,
@@ -119,7 +130,9 @@ export class BonitaoEngine {
         momentum,
         indicators: indicatorConfluences,
         volStrength: volumeFlow.score,
-        adx: trendStrength
+        adx: trendStrength,
+        instFootprint: instFootprint.detected,
+        divergence: !!divergence
     });
 
     if (result.score < this.MIN_BONITAO_SCORE) {
@@ -276,6 +289,33 @@ export class BonitaoEngine {
     return false;
   }
 
+  private static detectInstitutionalFootprint(history: MarketData[]) {
+    // Detecta picos de volume que acompanham movimentos curtos (Absorção)
+    const last = history[history.length - 1];
+    const avgVolume = history.slice(-20).reduce((a, b) => a + b.volume, 0) / 20;
+    
+    if (last.volume > avgVolume * 2.5) {
+        return { detected: true, desc: "Volume Incomum Detectado (Possível Big Player)" };
+    }
+    return { detected: false, desc: "" };
+  }
+
+  private static detectDivergence(history: MarketData[]) {
+    if (history.length < 10) return null;
+    const closes = history.map(d => d.close);
+    const rsi = history.map((_, i) => calculateRSI(closes.slice(0, i + 1))).slice(-10);
+    
+    const lastPrice = closes[closes.length - 1];
+    const prevPrice = closes[closes.length - 5];
+    const lastRsi = rsi[rsi.length - 1];
+    const prevRsi = rsi[rsi.length - 5];
+
+    if (lastPrice > prevPrice && lastRsi < prevRsi) return "Divergência de Baixa (RSI)";
+    if (lastPrice < prevPrice && lastRsi > prevRsi) return "Divergência de Alta (RSI)";
+    
+    return null;
+  }
+
   private static calculateProbabilityScore(data: any) {
     let score = 0;
     const confluences: string[] = [];
@@ -312,6 +352,17 @@ export class BonitaoEngine {
         score += 10;
         confluences.push(...data.indicators);
     }
+    
+    if (data.instFootprint) {
+        score += 10;
+        confluences.push("Confirmação Institucional");
+    }
+
+    if (data.divergence) {
+        score += 5;
+        confluences.push("Confluência de Divergência");
+    }
+
     score += 10; // Suporte e Resistência
 
     const type: SignalType = data.trend === "BULLISH" ? "CALL" : "PUT";
